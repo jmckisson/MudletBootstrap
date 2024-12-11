@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/launch.ini</file>
+    </qresource>
+</RCC>
