@@ -30,7 +30,7 @@ private slots:
 private:
     QNetworkAccessManager networkManager;
     QNetworkReply *currentReply;
-    void fetchPlatformFeed(const QString &os);
+    void fetchPlatformFeed();
     void downloadFile(const QString &url, const QString &outputFile);
     void installApplication(const QString &filePath);
 

@@ -14,13 +14,18 @@
 #include <QJsonArray>
 #include <QMap>
 
-QMap<QString, QString> getPlatformFeedMap() {
+QMap<QString, QString> getPlatformFeedMap(const QString &type) {
+
+    const QString dblsqdFeedType = type == "PTB" ? "public-test-build" : "release";
+
+    const QString dblsqdFeedUrl = "https://feeds.dblsqd.com/MKMMR7HNSP65PquQQbiDIw/";
+
     return {
-        {"mac/arm",         "https://feeds.dblsqd.com/MKMMR7HNSP65PquQQbiDIw/release/mac/arm"},
-        {"mac/x86_64",      "https://feeds.dblsqd.com/MKMMR7HNSP65PquQQbiDIw/release/mac/x86_64"},
-        {"win/x86_64",      "https://feeds.dblsqd.com/MKMMR7HNSP65PquQQbiDIw/release/win/x86_64"},
-        {"win/x86",         "https://feeds.dblsqd.com/MKMMR7HNSP65PquQQbiDIw/release/win/x86"},
-        {"linux/x86_64",    "https://feeds.dblsqd.com/MKMMR7HNSP65PquQQbiDIw/release/linux/x86_64"}
+        {"mac/arm",         QString("%1%2/mac/arm").arg(dblsqdFeedUrl).arg(dblsqdFeedType)},
+        {"mac/x86_64",      QString("%1%2/mac/x86_64").arg(dblsqdFeedUrl).arg(dblsqdFeedType)},
+        {"win/x86_64",      QString("%1%2/win/x86_64").arg(dblsqdFeedUrl).arg(dblsqdFeedType)},
+        {"win/x86",         QString("%1%2/win/x86").arg(dblsqdFeedUrl).arg(dblsqdFeedType)},
+        {"linux/x86_64",    QString("%1%2/linux/x86_64").arg(dblsqdFeedUrl).arg(dblsqdFeedType)}
     };
 }
 
@@ -54,15 +59,24 @@ QString detectOS() {
 QString readLaunchProfileFromResource() {
     QSettings settings(":/resources/launch.ini", QSettings::IniFormat);
 
-    QString profile = settings.value("Settings/MUDLET_LAUNCH_PROFILE", "").toString();
+    QString profile = settings.value("Settings/MUDLET_PROFILES", "").toString();
 
     if (profile.isEmpty()) {
-        qDebug() << "MUDLET_LAUNCH_PROFILE not found in resource file.";
+        qDebug() << "MUDLET_PROFILES not found in resource file.";
     }
 
     return profile;
 }
 
+
+/**
+ * @brief 
+ * 
+ * @param filePath Path to the file of whose hash wil be computed
+ * @param expectedHash Expected sha256 hash
+ * @return true If the expectedHash matches the sha256 hash of the file
+ * @return false If the expectedHash does not match the sha256 hash of the file
+ */
 bool verifyFileSha256(const QString &filePath, const QString &expectedHash) {
 
     QFile file(filePath);
@@ -119,17 +133,25 @@ MudletBootstrap::MudletBootstrap(QObject *parent) :
 }
 
 void MudletBootstrap::start() {
-    QString os = detectOS();
-    qDebug() << "Detected OS:" << os;
-
-    fetchPlatformFeed(os);
+    fetchPlatformFeed();
 
     // Show the progress bar window
     progressWindow->show();
 }
 
-void MudletBootstrap::fetchPlatformFeed(const QString &os) {
-    QMap<QString, QString> feedMap = getPlatformFeedMap();
+/**
+ * @brief Query the platform OS and fetch the proper platform feed from dblsqd
+ */
+void MudletBootstrap::fetchPlatformFeed() {
+
+    QSettings settings(":/resources/launch.ini", QSettings::IniFormat);
+
+    QString releaseType = settings.value("Settings/RELEASE_TYPE", "").toString();
+
+    QMap<QString, QString> feedMap = getPlatformFeedMap(releaseType);
+
+    QString os = detectOS();
+
     QString feedUrl = feedMap.value(os);
 
     if (feedUrl.isEmpty()) {
@@ -142,6 +164,10 @@ void MudletBootstrap::fetchPlatformFeed(const QString &os) {
     connect(currentReply, &QNetworkReply::finished, this, &MudletBootstrap::onFetchPlatformFeedFinished);
 }
 
+/**
+ * @brief Called upon complete receipt of the platform feed. 
+ * Extracts the url and sha256 from the JSON and sets up a new download for the proper file.
+ */
 void MudletBootstrap::onFetchPlatformFeedFinished() {
     if (currentReply->error() != QNetworkReply::NoError) {
         qDebug() << "Error fetching feed:" << currentReply->errorString();
@@ -169,8 +195,6 @@ void MudletBootstrap::onFetchPlatformFeedFinished() {
     QJsonObject download = firstRelease.value("download").toObject();
     info.sha256 = download.value("sha256").toString();
     info.url = download.value("url").toString();
-    QString os = download.value("os").toString();
-    QString arch = download.value("arch").toString();
 
     qDebug() << "SHA-256:" << info.sha256;
     qDebug() << "URL:" << info.url;
@@ -187,7 +211,7 @@ void MudletBootstrap::onFetchPlatformFeedFinished() {
 
     outputFile = info.appName;
 
-    // Create a request and start downloading
+    // Create a request and start downloading the Mudlet installer
     QNetworkRequest request{QUrl(info.url)};
     currentReply = networkManager.get(request);
 
@@ -219,7 +243,7 @@ void MudletBootstrap::installApplication(const QString &filePath) {
     } else {
         // Pass along the launch profile to the environment
         QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-        env.insert("MUDLET_LAUNCH_PROFILE", launchProfile);
+        env.insert("MUDLET_PROFILES", launchProfile);
         installerProcess.setProcessEnvironment(env);
     }
     
@@ -240,6 +264,12 @@ void MudletBootstrap::installApplication(const QString &filePath) {
 }
 
 
+/**
+ * @brief Verifies the sha256 hash and starts the install process if the hash matches what we got
+ * from the dblsqd feed.
+ * Called upon completion of the Mudlet installer download.
+ * 
+ */
 void MudletBootstrap::onDownloadFinished() {
     if (currentReply->error() != QNetworkReply::NoError) {
         statusLabel->setText(QString("Error downloading file: %1").arg(currentReply->errorString()));
