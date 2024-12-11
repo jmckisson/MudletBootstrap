@@ -9,42 +9,47 @@
 #include <QSettings>
 #include <QUrl>
 #include <QVBoxLayout>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QMap>
+
+QMap<QString, QString> getPlatformFeedMap() {
+    return {
+        {"mac/arm",         "https://feeds.dblsqd.com/MKMMR7HNSP65PquQQbiDIw/release/mac/arm"},
+        {"mac/x86_64",      "https://feeds.dblsqd.com/MKMMR7HNSP65PquQQbiDIw/release/mac/x86_64"},
+        {"win/x86_64",      "https://feeds.dblsqd.com/MKMMR7HNSP65PquQQbiDIw/release/win/x86_64"},
+        {"win/x86",         "https://feeds.dblsqd.com/MKMMR7HNSP65PquQQbiDIw/release/win/x86"},
+        {"linux/x86_64",    "https://feeds.dblsqd.com/MKMMR7HNSP65PquQQbiDIw/release/linux/x86_64"}
+    };
+}
+
 
 QString detectOS() {
-    QString os;
+    QString osKey;
 
 #if defined(Q_OS_WIN)
-    os = "Windows";
-    // Check for 32-bit or 64-bit Windows
-    if (sizeof(void*) == 8) { // Pointer size is 8 bytes for 64-bit
-        os += " 64-bit";
+    if (sizeof(void*) == 8) {
+        osKey = "win/x86_64";
     } else {
-        os += " 32-bit";
+        osKey = "win/x86";
     }
-
 #elif defined(Q_OS_MAC)
-    os = "macOS";
-    // Check for Apple Silicon (ARM64) or Intel
     QString architecture = QSysInfo::currentCpuArchitecture();
     if (architecture.contains("arm64")) {
-        os += " (Apple Silicon)";
+        osKey = "mac/arm";
     } else if (architecture.contains("x86_64")) {
-        os += " (Intel)";
-    } else {
-        os += " (Unknown Architecture)";
+        osKey = "mac/x86_64";
     }
-
 #elif defined(Q_OS_LINUX)
-    os = "Linux";
-    QString architecture = QSysInfo::currentCpuArchitecture();
-    os += " (" + architecture + ")";
+    osKey = "linux/x86_64";  // Extend for other architectures as needed
 #else
-    os = "Unknown OS";
+    osKey = "unknown";
 #endif
 
-    qDebug() << "Detected OS:" << os;
-    return os;
+    return osKey;
 }
+
 
 QString readLaunchProfileFromResource() {
     QSettings settings(":/resources/launch.ini", QSettings::IniFormat);
@@ -92,6 +97,7 @@ bool verifyFileSha256(const QString &filePath, const QString &expectedHash) {
     }
 }
 
+
 MudletBootstrap::MudletBootstrap(QObject *parent) :
     QObject(parent),
     currentReply(nullptr) {
@@ -116,48 +122,80 @@ void MudletBootstrap::start() {
     QString os = detectOS();
     qDebug() << "Detected OS:" << os;
 
-    QUrl url("https://www.mudlet.org/download/");
-    QNetworkRequest request(url);
-
-    currentReply = networkManager.get(request);
-    connect(currentReply, &QNetworkReply::finished, this, &MudletBootstrap::onFetchHtmlFinished);
+    fetchPlatformFeed(os);
 
     // Show the progress bar window
     progressWindow->show();
 }
 
-void MudletBootstrap::onFetchHtmlFinished() {
-    if (currentReply->error() != QNetworkReply::NoError) {
-        qDebug() << "Error fetching HTML:" << currentReply->errorString();
+void MudletBootstrap::fetchPlatformFeed(const QString &os) {
+    QMap<QString, QString> feedMap = getPlatformFeedMap();
+    QString feedUrl = feedMap.value(os);
+
+    if (feedUrl.isEmpty()) {
+        qDebug() << "No feed URL found for platform:" << os;
         return;
     }
 
-    fetchedHtml = currentReply->readAll();
+    currentReply = networkManager.get(QNetworkRequest(QUrl(feedUrl)));
+
+    connect(currentReply, &QNetworkReply::finished, this, &MudletBootstrap::onFetchPlatformFeedFinished);
+}
+
+void MudletBootstrap::onFetchPlatformFeedFinished() {
+    if (currentReply->error() != QNetworkReply::NoError) {
+        qDebug() << "Error fetching feed:" << currentReply->errorString();
+        currentReply->deleteLater();
+        return;
+    }
+
+    QByteArray jsonData = currentReply->readAll();
     currentReply->deleteLater();
 
-    QString os = detectOS();
-    extractDownloadInfo(fetchedHtml, os);
-
-    if (info.link.isEmpty() || info.appName.isEmpty() || info.sha256.isEmpty()) {
-        qDebug() << "Failed to extract download information for OS:" << os;
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    if (doc.isNull() || !doc.isObject()) {
+        qDebug() << "Invalid JSON data.";
         return;
     }
 
-    qDebug() << "Download link:" << info.link;
-    qDebug() << "Application name:" << info.appName;
-    qDebug() << "SHA-256 checksum:" << info.sha256;
+    QJsonObject rootObj = doc.object();
+    QJsonArray releases = rootObj.value("releases").toArray();
+    if (releases.isEmpty()) {
+        qDebug() << "No releases found.";
+        return;
+    }
 
-    outputFile = "downloaded_" + info.appName;
+    QJsonObject firstRelease = releases[0].toObject();
+    QJsonObject download = firstRelease.value("download").toObject();
+    info.sha256 = download.value("sha256").toString();
+    info.url = download.value("url").toString();
+    QString os = download.value("os").toString();
+    QString arch = download.value("arch").toString();
+
+    qDebug() << "SHA-256:" << info.sha256;
+    qDebug() << "URL:" << info.url;
+
+    QRegularExpression regex(R"(/([^/]+)\.exe$)");
+    QRegularExpressionMatch match = regex.match(info.url);
+
+    if (match.hasMatch()) {
+        info.appName = match.captured(1);
+    } else {
+        qDebug() << "No match found in URL:" << info.url;
+        return;
+    }
+
+    outputFile = info.appName;
 
     // Create a request and start downloading
-    QNetworkRequest request{QUrl(info.link)};
+    QNetworkRequest request{QUrl(info.url)};
     currentReply = networkManager.get(request);
 
     connect(currentReply, &QNetworkReply::downloadProgress, this, &MudletBootstrap::onDownloadProgress);
     connect(currentReply, &QNetworkReply::finished, this, &MudletBootstrap::onDownloadFinished);
     connect(currentReply, &QNetworkReply::errorOccurred, this, &MudletBootstrap::onDownloadError);
 
-    statusLabel->setText(QString("Downloading %1...").arg(info.appName));
+    statusLabel->setText(QString("Downloading %1...").arg(outputFile));
 }
 
 
@@ -235,29 +273,5 @@ void MudletBootstrap::onDownloadFinished() {
 void MudletBootstrap::onDownloadError(QNetworkReply::NetworkError error) {
     qDebug() << "Download error:" << currentReply->errorString();
     currentReply->deleteLater();
-}
-
-
-void MudletBootstrap::extractDownloadInfo(const QString &html, const QString &os) {
-
-    // For now, since the only Windows and Mac downloads are 32 bit (Windows) and x86 (macOS)
-    // just grab those, this will need to be updated when additional downloads are available
-    // for those platforms
-
-    QRegularExpression regex;
-    if (os.startsWith("Windows")) {
-        regex.setPattern(R"(<strong><a href=\"([^\"]+)\">([^<]+ \(windows-32\))</a></strong>.*?sha256:\s*([a-fA-F0-9]{64}))");
-    } else if (os.startsWith("macOS")) {
-        regex.setPattern(R"(<strong><a href=\"([^\"]+)\">([^<]+ \(macOS\))</a></strong>.*?sha256:\s*([a-fA-F0-9]{64}))");
-    } else if (os.startsWith("Linux")) {
-        regex.setPattern(R"(<strong><a href=\"([^\"]+)\">([^<]+ \(Linux\))</a></strong>.*?sha256:\s*([a-fA-F0-9]{64}))");
-    }
-
-    QRegularExpressionMatch match = regex.match(html);
-    if (match.hasMatch()) {
-        info.link = match.captured(1);     // download link
-        info.appName = match.captured(2);  // application name
-        info.sha256 = match.captured(3);   // SHA-256
-    }
 }
 

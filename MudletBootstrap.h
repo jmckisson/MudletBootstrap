@@ -9,7 +9,7 @@
 #include <QLabel>
 
 struct DownloadInfo {
-    QString link;
+    QString url;
     QString appName;
     QString sha256;
 };
@@ -22,7 +22,7 @@ public:
     void start();
 
 private slots:
-    void onFetchHtmlFinished();
+    void onFetchPlatformFeedFinished();
     void onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void onDownloadFinished();
     void onDownloadError(QNetworkReply::NetworkError error);
@@ -30,7 +30,7 @@ private slots:
 private:
     QNetworkAccessManager networkManager;
     QNetworkReply *currentReply;
-    void extractDownloadInfo(const QString &html, const QString &os);
+    void fetchPlatformFeed(const QString &os);
     void downloadFile(const QString &url, const QString &outputFile);
     void installApplication(const QString &filePath);
 
