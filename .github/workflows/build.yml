@@ -1,0 +1,115 @@
+name: Build MudletBootstrap
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  compile:
+    name: ${{matrix.buildname}}
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-20.4
+            buildname: 'Linux'
+            triplet: x64-linux
+            compiler: gcc_64
+            gcc_compiler_version: 8
+            qt: '6.8.1'
+          - os: macos-13
+            buildname: 'macOS'
+            triplet: x64-osx
+            compiler: clang_64
+            qt: '6.8.1'
+
+    steps:
+    - name: Checkout Source
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+        fetch-depth: 0
+
+    - name: Use CMake 3.30.3
+      uses: lukka/get-cmake@v3.30.3
+
+    - name: (macOS) Install dependencies
+      if: runner.os == 'macOS'
+      env:
+        HOMEBREW_NO_ANALYTICS: "ON"
+        HOMEBREW_NO_AUTO_UPDATE: "ON"
+        HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK: "ON"
+        HOMEBREW_NO_INSTALL_CLEANUP: "ON"
+        QT_VERSION: ${{ matrix.qt }}
+      run: |
+        # dependencies needed for vcpkg specifically.
+        BREWS=("automake" "autoconf" "pkg-config" "ccache")
+
+        # Loop through each brew package
+        for brew in "${BREWS[@]}"; do
+         if ! brew list --formula "${brew}" &>/dev/null; then
+          echo "Installing ${brew}..."
+          brew install "$brew"
+         else
+          echo "${brew} is already installed."
+         fi
+        done
+
+        # Set these here so that vcpkg can use them.
+        # Use latest available XCode
+        echo "DEVELOPER_DIR=$(xcode-select --print-path)" >> $GITHUB_ENV
+        echo "SDKROOT=$(xcrun --sdk macosx --show-sdk-path)" >> $GITHUB_ENV
+        echo "CCACHE_DIR=${{runner.workspace}}/ccache" >> $GITHUB_ENV
+
+    - name: (Linux) Install dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install ccache pkg-config
+
+        # switch to GCC that supports C++17 while retaining support for older OS's
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{matrix.gcc_compiler_version}} ${{matrix.gcc_compiler_version}}
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{matrix.gcc_compiler_version}} ${{matrix.gcc_compiler_version}}
+        sudo update-alternatives --set gcc /usr/bin/gcc-${{matrix.gcc_compiler_version}}
+        sudo update-alternatives --set g++ /usr/bin/g++-${{matrix.gcc_compiler_version}}
+
+        echo "CCACHE_DIR=${{runner.workspace}}/ccache" >> $GITHUB_ENV
+
+    - name: Restore ccache
+      id: restore-ccache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{runner.workspace}}/ccache
+        key: ccache-${{matrix.os}}-${{matrix.compiler}}-${{matrix.qt}}-${{ github.sha }}
+        restore-keys: ccache-${{matrix.os}}-${{matrix.compiler}}-${{matrix.qt}}
+
+    - name: check ccache stats prior to build
+      run: ccache --zero-stats --show-stats
+
+    - name: Build MudletBootstrap
+      uses: lukka/run-cmake@v3
+      with:
+        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+        cmakeListsTxtPath: '${{github.workspace}}/CMakeLists.txt'
+        useVcpkgToolchainFile: true
+        buildDirectory: '${{runner.workspace}}/build'
+        cmakeAppendedArgs: >-
+          -DCMAKE_PREFIX_PATH=${{ env.QT_PREFIX != '' && env.QT_PREFIX || env.MINGW_BASE_DIR }}
+
+    - name: Save ccache
+      if: always() && steps.restore-ccache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ${{runner.workspace}}/ccache
+        key: ${{ steps.restore-ccache.outputs.cache-primary-key }}
+
+    - name: check ccache stats post build
+      run: ccache --show-stats
+
+    - name: Upload Packaged Product
+      uses: actions/upload-artifact@v4
+      if: env.UPLOAD_FILENAME
+      with:
+        name: ${{env.UPLOAD_FILENAME}}
+        path: ${{env.FOLDER_TO_UPLOAD}}
