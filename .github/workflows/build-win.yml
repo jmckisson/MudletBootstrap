@@ -42,6 +42,9 @@ jobs:
       shell: msys2 {0}
       run: $GITHUB_WORKSPACE/CI/build-win.sh
 
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+
     #- name: Save ccache
     #  if: always() && steps.restore-ccache.outputs.cache-hit != 'true'
     #  uses: actions/cache/save@v4
