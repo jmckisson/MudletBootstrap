@@ -22,6 +22,9 @@ jobs:
             triplet: x64-osx
             compiler: clang_64
             qt: '6.8.1'
+          - os: windows-2019
+            buildname: 'Windows'
+            qt: '6.8.1'
 
     steps:
     - name: Checkout Source
@@ -109,6 +112,31 @@ jobs:
 
     - name: check ccache stats post build
       run: ccache --show-stats
+
+    - name: (macOS) Prep for Artifact Upload
+      if: runner.os == 'macOS'
+      env:
+        BUILD_DIR: ${{runner.workspace}}/build
+      run: |
+        mkdir -p "${BUILD_DIR}/upload/"
+        appBaseName="MudletBootstrap"
+        mv "${BUILD_DIR}/${appBaseName}.app" "${BUILD_DIR}/upload/"
+        {
+          echo "FOLDER_TO_UPLOAD=${BUILD_DIR}/upload"
+          echo "UPLOAD_FILENAME=${appBaseName}"
+        } >> "$GITHUB_ENV"
+
+    #- name: (Linux) Prep for Artifact Upload
+    #  if: runner.os == 'Linux'
+    #  env:
+    #    BUILD_DIR: ${{runner.workspace}}/build
+    #  run: |
+    #    mkdir "upload/"
+    #    mv "MudletBootstrap-${VERSION}${MUDLET_VERSION_BUILD}-${BUILD_COMMIT}-linux-x64.AppImage.tar" "upload/"
+    #    {
+    #      echo "FOLDER_TO_UPLOAD=$(pwd)/upload"
+    #      echo "UPLOAD_FILENAME=Mudlet-${VERSION}${MUDLET_VERSION_BUILD}-${BUILD_COMMIT}-linux-x64"
+    #    } >> "$GITHUB_ENV"
 
     - name: Upload Packaged Product
       uses: actions/upload-artifact@v4
