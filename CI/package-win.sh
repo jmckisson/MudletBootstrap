@@ -106,7 +106,7 @@ if [ -f "${GITHUB_WORKSPACE_UNIX_PATH}/build/MudletBootstrap.exe.debug" ]; then
 fi
 
 
-"${MINGW_INTERNAL_BASE_DIR}/bin/windeployqt" ./MudletBootstrap.exe
+"${MINGW_INTERNAL_BASE_DIR}/bin/windeployqt6" ./MudletBootstrap.exe
 
 ZIP_FILE_NAME="MudletBootstrap"
 

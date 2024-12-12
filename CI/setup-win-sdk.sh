@@ -113,7 +113,9 @@ while true; do
   if /usr/bin/pacman -Su --needed --noconfirm \
     git \
     man \
+    rsync \
     "mingw-w64-${BUILDCOMPONENT}-ccache" \
+    "mingw-w64-${BUILDCOMPONENT}-ntldd" \
     "mingw-w64-${BUILDCOMPONENT}-toolchain" \
     "mingw-w64-${BUILDCOMPONENT}-cmake" \
     "mingw-w64-${BUILDCOMPONENT}-ninja"; then
