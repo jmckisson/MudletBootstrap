@@ -15,8 +15,7 @@ jobs:
           - os: ubuntu-20.04
             buildname: 'Linux'
             triplet: x64-linux
-            compiler: gcc_64
-            gcc_compiler_version: 8
+            compiler: clang_64
             qt: '6.8.1'
           - os: macos-13
             buildname: 'macOS'
@@ -27,9 +26,6 @@ jobs:
     steps:
     - name: Checkout Source
       uses: actions/checkout@v4
-      with:
-        submodules: true
-        fetch-depth: 0
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
@@ -75,13 +71,13 @@ jobs:
         sudo apt-get update
         sudo apt-get install ccache pkg-config
 
-        # switch to GCC that supports C++17 while retaining support for older OS's
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{matrix.gcc_compiler_version}} ${{matrix.gcc_compiler_version}}
-        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{matrix.gcc_compiler_version}} ${{matrix.gcc_compiler_version}}
-        sudo update-alternatives --set gcc /usr/bin/gcc-${{matrix.gcc_compiler_version}}
-        sudo update-alternatives --set g++ /usr/bin/g++-${{matrix.gcc_compiler_version}}
-
         echo "CCACHE_DIR=${{runner.workspace}}/ccache" >> $GITHUB_ENV
+
+    #- name: (Linux Clang) Set clang compiler
+    #  if: runner.os == 'Linux'
+    #  run: |
+    #       echo "CXX=clang++" >> $GITHUB_ENV
+    #       echo "CC=clang" >> $GITHUB_ENV
 
     - name: Restore ccache
       id: restore-ccache
