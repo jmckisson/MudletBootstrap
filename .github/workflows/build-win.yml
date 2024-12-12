@@ -30,24 +30,24 @@ jobs:
       run: |
         $GITHUB_WORKSPACE/CI/setup-win-sdk.sh
 
-    - name: Restore ccache
-      id: restore-ccache
-      uses: actions/cache/restore@v4
-      with:
-        path: ${{runner.workspace}}/ccache
-        key: ccache-${{matrix.os}}-${{matrix.buildname}}-${{ github.sha }}
-        restore-keys: ccache-${{matrix.os}}-${{matrix.buildname}}
+    #- name: Restore ccache
+    #  id: restore-ccache
+    #  uses: actions/cache/restore@v4
+    #  with:
+    #    path: ${{runner.workspace}}/ccache
+    #    key: ccache-${{matrix.os}}-${{matrix.buildname}}-${{ github.sha }}
+    #    restore-keys: ccache-${{matrix.os}}-${{matrix.buildname}}
 
     - name: (Windows) Build
       shell: msys2 {0}
       run: $GITHUB_WORKSPACE/CI/build-win.sh
 
-    - name: Save ccache
-      if: always() && steps.restore-ccache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
-      with:
-        path: ${{runner.workspace}}/ccache
-        key: ${{ steps.restore-ccache.outputs.cache-primary-key }}
+    #- name: Save ccache
+    #  if: always() && steps.restore-ccache.outputs.cache-hit != 'true'
+    #  uses: actions/cache/save@v4
+    #  with:
+    #    path: ${{runner.workspace}}/ccache
+    #    key: ${{ steps.restore-ccache.outputs.cache-primary-key }}
 
     - name: (Windows) Package
       shell: msys2 {0}
