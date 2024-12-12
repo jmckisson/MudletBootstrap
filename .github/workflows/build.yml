@@ -95,12 +95,13 @@ jobs:
       run: ccache --zero-stats --show-stats
 
     - name: Build MudletBootstrap
-      uses: lukka/run-cmake@v3
+      uses: lukka/run-cmake@v10
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
         cmakeListsTxtPath: '${{github.workspace}}/CMakeLists.txt'
         useVcpkgToolchainFile: true
         buildDirectory: '${{runner.workspace}}/build'
+        buildPresetAdditionalArgs: "['--config Release']"
         cmakeAppendedArgs: >-
           -DCMAKE_PREFIX_PATH=${{ env.QT_PREFIX != '' && env.QT_PREFIX || env.MINGW_BASE_DIR }}
 
@@ -112,6 +113,7 @@ jobs:
         key: ${{ steps.restore-ccache.outputs.cache-primary-key }}
 
     - name: check ccache stats post build
+      if: runner.os == 'Linux' || runner.os == 'macOS'
       run: ccache --show-stats
 
     - name: (macOS) Prep for Artifact Upload
@@ -139,9 +141,15 @@ jobs:
     #      echo "UPLOAD_FILENAME=Mudlet-${VERSION}${MUDLET_VERSION_BUILD}-${BUILD_COMMIT}-linux-x64"
     #    } >> "$GITHUB_ENV"
 
-    - name: Upload Packaged Product
+    - name: (macOS, Linux) Upload Packaged Product
       uses: actions/upload-artifact@v4
       if: env.UPLOAD_FILENAME
       with:
         name: ${{env.UPLOAD_FILENAME}}
         path: ${{env.FOLDER_TO_UPLOAD}}
+
+    - name: (Windows) Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: MudletBootstrap
+        path: ${{runner.workspace}}/build/Release/MudletBootstrap.exe
