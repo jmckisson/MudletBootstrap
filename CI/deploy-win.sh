@@ -34,9 +34,9 @@ if [ "${MSYSTEM}" = "MSYS" ]; then
   echo "to the bitness you want to work on. You may do this once for each of them should"
   echo "you wish to do both."
   exit 2
-elif [ "${MSYSTEM}" = "MINGW32" ]; then
-  export BUILD_BITNESS="32"
-  export BUILDCOMPONENT="i686"
+elif [ "${MSYSTEM}" = "MINGW64" ]; then
+  export BUILD_BITNESS="64"
+  export BUILDCOMPONENT="x86_64"
   export ARCH="x86"
 else
   echo "This script is not set up to handle systems of type ${MSYSTEM}, only MINGW32 or"

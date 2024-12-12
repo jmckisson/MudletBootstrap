@@ -50,9 +50,9 @@
 # 7 - One of more packages failed to install
 
 
-if [ "${MSYSTEM}" = "MINGW32" ]; then
-  export BUILD_BITNESS="32"
-  export BUILDCOMPONENT="i686"
+if [ "${MSYSTEM}" = "MINGW64" ]; then
+  export BUILD_BITNESS="64"
+  export BUILDCOMPONENT="x86_64"
 elif [ "${MSYSTEM}" = "MSYS" ]; then
   echo "Please run this script from an MINGW32 or MINGW64 type bash terminal appropriate"
   echo "to the bitness you want to work on. You may do this once for each of them should"
@@ -89,13 +89,12 @@ echo "    to go and have a cup of tea (other beverages are available) in the mea
 echo ""
 
 
-echo "=== Installing Qt5 Packages ==="
+echo "=== Installing Qt6 Packages ==="
 pacman_attempts=1
 while true; do
     if /usr/bin/pacman -Su --needed --noconfirm \
-        "mingw-w64-${BUILDCOMPONENT}-qt5-base" \
-        "mingw-w64-${BUILDCOMPONENT}-qt5-winextras" \
-        "mingw-w64-${BUILDCOMPONENT}-qt5-tools"; then
+        "mingw-w64-${BUILDCOMPONENT}-qt6-base" \
+        "mingw-w64-${BUILDCOMPONENT}-qt6-tools"; then
         break
     fi
 
