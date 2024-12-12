@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-20.4
+          - os: ubuntu-20.04
             buildname: 'Linux'
             triplet: x64-linux
             compiler: gcc_64
