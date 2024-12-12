@@ -199,7 +199,7 @@ void MudletBootstrap::onFetchPlatformFeedFinished() {
     qDebug() << "SHA-256:" << info.sha256;
     qDebug() << "URL:" << info.url;
 
-    QRegularExpression regex(R"(/([^/]+)\.exe$)");
+    QRegularExpression regex(R"(/([^/]+)\.(exe|dmg|AppImage\.tar)$)");
     QRegularExpressionMatch match = regex.match(info.url);
 
     if (match.hasMatch()) {
