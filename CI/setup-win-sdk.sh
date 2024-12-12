@@ -115,6 +115,7 @@ while true; do
     git \
     man \
     "mingw-w64-${BUILDCOMPONENT}-ccache" \
+    "mingw-w64-${BUILDCOMPONENT}-toolchain" \
     "mingw-w64-${BUILDCOMPONENT}-cmake" \
     "mingw-w64-${BUILDCOMPONENT}-ninja"; then
       break
