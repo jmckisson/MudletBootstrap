@@ -102,7 +102,7 @@ jobs:
         useVcpkgToolchainFile: true
         buildDirectory: '${{runner.workspace}}/build'
         cmakeAppendedArgs: >-
-          -DCMAKE_BUILD_TYPE=Release 
+          --config Release 
           -DCMAKE_PREFIX_PATH=${{ env.QT_PREFIX != '' && env.QT_PREFIX || env.MINGW_BASE_DIR }}
 
     - name: Save ccache
