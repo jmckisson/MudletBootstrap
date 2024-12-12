@@ -1,0 +1,71 @@
+name: Build MudletBootstrap (Windows)
+on:
+  push:
+    branches: [master]
+  pull_request:
+  
+jobs:
+  compile:
+    name: ${{matrix.buildname}}
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2019
+            buildname: 'Windows'
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: (Windows) Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW32
+        update: true
+
+    - name: (Windows) Build Environment Setup
+      shell: msys2 {0}
+      run: |
+        $GITHUB_WORKSPACE/CI/setup-win-sdk.sh
+
+    - name: Restore ccache
+      id: restore-ccache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{runner.workspace}}/ccache
+        key: ccache-${{matrix.os}}-${{matrix.buildname}}-${{ github.sha }}
+        restore-keys: ccache-${{matrix.os}}-${{matrix.buildname}}
+
+    - name: (Windows) Build
+      shell: msys2 {0}
+      run: $GITHUB_WORKSPACE/CI/build-win.sh
+
+    - name: Save ccache
+      if: always() && steps.restore-ccache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ${{runner.workspace}}/ccache
+        key: ${{ steps.restore-ccache.outputs.cache-primary-key }}
+
+    - name: (Windows) Package
+      shell: msys2 {0}
+      run: $GITHUB_WORKSPACE/CI/package-win.sh
+
+    - name: (Windows) Deploy
+      shell: msys2 {0}
+      env:
+        GITHUB_REPO_NAME: ${{ github.repository }}
+        GITHUB_REPO_TAG: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
+        GITHUB_SCHEDULED_BUILD: ${{ github.event_name == 'schedule' || github.event.inputs.scheduled == 'true' }}
+        GITHUB_PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+        GITHUB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      run: $GITHUB_WORKSPACE/CI/deploy-win.sh
+
+    - name: Upload packaged Product
+      uses: actions/upload-artifact@v4
+      if: env.UPLOAD_FILENAME
+      with:
+        name: ${{env.UPLOAD_FILENAME}}
+        path: ${{env.FOLDER_TO_UPLOAD}}
