@@ -73,6 +73,10 @@ echo ""
 
 cd $GITHUB_WORKSPACE || exit 1
 
+echo "Running CMake configure..."
+cmake .
+
+echo "Running CMake build..."
 cmake --build .
 
 echo " ... make finished"
