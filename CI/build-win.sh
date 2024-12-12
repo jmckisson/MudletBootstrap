@@ -72,8 +72,11 @@ echo ""
 
 cd $GITHUB_WORKSPACE || exit 1
 
+mkdir build
+cd build
+
 echo "Running CMake configure..."
-cmake .
+cmake .. -G Ninja
 
 echo "Running CMake build..."
 cmake --build .
