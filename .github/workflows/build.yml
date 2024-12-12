@@ -91,6 +91,7 @@ jobs:
         restore-keys: ccache-${{matrix.os}}-${{matrix.compiler}}-${{matrix.qt}}
 
     - name: check ccache stats prior to build
+      if: runner.os == 'Linux' || runner.os == 'macOS'
       run: ccache --zero-stats --show-stats
 
     - name: Build MudletBootstrap
