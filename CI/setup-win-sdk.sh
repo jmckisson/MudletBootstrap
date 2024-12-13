@@ -140,7 +140,7 @@ done
 
 echo "=== Cloning Qt Source Repository ==="
 cd ~
-git clone --branch 6.8.1 https://github.com/qt/qt5.git qt6-source
+git clone --branch 6.8.1 --depth 1 https://github.com/qt/qt5.git qt6-source
 cd qt6-source
 
 echo "=== Configuring Qt for Static Linking ==="
@@ -148,7 +148,7 @@ perl init-repository --module-subset=qtbase,qttools,qttranslations
 cd ~
 mkdir qt-static-build
 cd qt-static-build
-../qt6-source/configure -prefix $PWD/qt-static-install -static -release -opensource -confirm-license -nomake tests -nomake examples -no-docs -skip qt3d -skip qtmultimedia -platform win32-g++ -openssl-linked -Wno-dev
+../qt6-source/configure -prefix $PWD/qt-static-install -static -release -opensource -confirm-license -nomake tests -nomake examples -skip qt3d -skip qtmultimedia -platform win32-g++ -openssl-linked -Wno-dev
 
 echo "=== Compiling Qt ==="
 cmake --build . --parallel
