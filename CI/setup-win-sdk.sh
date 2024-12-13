@@ -150,7 +150,7 @@ mkdir qt-static-build
 cd qt-static-build
 export CMAKE_SUPPRESS_DEVELOPER_WARNINGS=ON
 
-../qt6-source/configure -prefix $PWD/qt-static-install -static -release -opensource -confirm-license -nomake tests -nomake examples -skip qt3d -skip qtmultimedia -platform win32-g++ -openssl-linked
+../qt6-source/configure -prefix $PWD/qt-static-install -static -release -opensource -confirm-license -submodules qtcore,qtnetwork,qttools,qttranslations -nomake tests -nomake examples -skip qt3d -skip qtmultimedia -platform win32-g++ -openssl-linked
 
 echo "=== Compiling Qt ==="
 cmake --build . --parallel
