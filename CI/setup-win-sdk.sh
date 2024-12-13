@@ -148,7 +148,9 @@ perl init-repository --module-subset=qtbase,qttools,qttranslations
 cd ~
 mkdir qt-static-build
 cd qt-static-build
-../qt6-source/configure -prefix $PWD/qt-static-install -static -release -opensource -confirm-license -nomake tests -nomake examples -skip qt3d -skip qtmultimedia -platform win32-g++ -openssl-linked -Wno-dev
+export CMAKE_SUPPRESS_DEVELOPER_WARNINGS=ON
+
+../qt6-source/configure -prefix $PWD/qt-static-install -static -release -opensource -confirm-license -nomake tests -nomake examples -skip qt3d -skip qtmultimedia -platform win32-g++ -openssl-linked
 
 echo "=== Compiling Qt ==="
 cmake --build . --parallel
