@@ -138,6 +138,11 @@ while true; do
   sleep 10
 done
 
+export CC="ccache gcc"
+export CXX="ccache g++"
+ccache --max-size=10G
+
+
 echo "=== Cloning Qt Source Repository ==="
 cd ~
 git clone --branch 6.8.1 --depth 1 --no-recurse-submodules https://github.com/qt/qt5.git qt6-source
@@ -151,7 +156,7 @@ mkdir qt-static-build
 cd qt-static-build
 export CMAKE_SUPPRESS_DEVELOPER_WARNINGS=ON
 
-../qt6-source/configure -prefix $PWD/qt-static-install -static -release -opensource -confirm-license -init-submodules -submodules qtbase,qttools,qttranslations -nomake tests -nomake examples -skip qt3d -skip qtmultimedia -skip qtdeclarative -skip qtshadertools -skip qtquick -skip designer -no-opengl -no-dbus -platform win32-g++ -openssl-linked
+../qt6-source/configure -prefix $PWD/qt-static-install -static -release -opensource -confirm-license -init-submodules -submodules qtbase,qttools,qttranslations -nomake tests -nomake examples -skip qt3d -skip qtmultimedia -skip qtdeclarative -skip qtshadertools -skip qtquick -skip designer -no-opengl -no-dbus -platform win32-g++ -openssl-linked -ccache
 
 echo "=== Compiling Qt ==="
 cmake --build . --parallel
