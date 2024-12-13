@@ -24,13 +24,13 @@ jobs:
             qt: '6.8.1'
           - os: windows-2019
             buildname: 'Windows'
-            qt: '6.8.1'
 
     steps:
     - name: Checkout Source
       uses: actions/checkout@v4
 
     - name: Install Qt
+      if: runner.os == 'Linux' || runner.os == 'macOS'
       uses: jurplel/install-qt-action@v4
       with:
         version: ${{matrix.qt}}
@@ -38,6 +38,7 @@ jobs:
         cache: true
 
     - name: Use CMake 3.30.3
+      if: runner.os == 'Linux' || runner.os == 'macOS'
       uses: lukka/get-cmake@v3.30.3
 
     - name: (macOS) Install dependencies
@@ -82,6 +83,12 @@ jobs:
     #       echo "CXX=clang++" >> $GITHUB_ENV
     #       echo "CC=clang" >> $GITHUB_ENV
 
+    - name: (Windows) Build Environment Setup
+      if: runner.os == 'Windows'
+      shell: msys2 {0}
+      run: |
+        $GITHUB_WORKSPACE/CI/setup-win-sdk.sh
+
     - name: Restore ccache
       id: restore-ccache
       uses: actions/cache/restore@v4
@@ -91,10 +98,10 @@ jobs:
         restore-keys: ccache-${{matrix.os}}-${{matrix.compiler}}-${{matrix.qt}}
 
     - name: check ccache stats prior to build
-      if: runner.os == 'Linux' || runner.os == 'macOS'
       run: ccache --zero-stats --show-stats
 
-    - name: Build MudletBootstrap
+    - name: (Linux, macOS) Build
+      if: runner.os == 'Linux' || runner.os == 'macOS'
       uses: lukka/run-cmake@v3
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
@@ -104,6 +111,11 @@ jobs:
         cmakeAppendedArgs: >-
           -DCMAKE_PREFIX_PATH=${{ env.QT_PREFIX != '' && env.QT_PREFIX || env.MINGW_BASE_DIR }}
 
+    - name: (Windows) Build
+      if: runner.os == 'Windows'
+      shell: msys2 {0}
+      run: $GITHUB_WORKSPACE/CI/build-win.sh
+
     - name: Save ccache
       if: always() && steps.restore-ccache.outputs.cache-hit != 'true'
       uses: actions/cache/save@v4
@@ -112,8 +124,17 @@ jobs:
         key: ${{ steps.restore-ccache.outputs.cache-primary-key }}
 
     - name: check ccache stats post build
-      if: runner.os == 'Linux' || runner.os == 'macOS'
       run: ccache --show-stats
+
+    - name: (Windows) Package
+      if: runner.os == 'Windows'
+      shell: msys2 {0}
+      run: $GITHUB_WORKSPACE/CI/package-win.sh
+
+    - name: (Windows) Deploy
+      if: runner.os == 'Windows'
+      shell: msys2 {0}
+      run: $GITHUB_WORKSPACE/CI/deploy-win.sh
 
     - name: (macOS) Prep for Artifact Upload
       if: runner.os == 'macOS'
@@ -140,17 +161,10 @@ jobs:
     #      echo "UPLOAD_FILENAME=Mudlet-${VERSION}${MUDLET_VERSION_BUILD}-${BUILD_COMMIT}-linux-x64"
     #    } >> "$GITHUB_ENV"
 
-    - name: (macOS, Linux) Upload Packaged Product
+    - name: Upload Packaged Product
       uses: actions/upload-artifact@v4
-      if: env.UPLOAD_FILENAME && (runner.os == 'Linux' || runner.os == 'macOS')
+      if: env.UPLOAD_FILENAME
       with:
         name: ${{env.UPLOAD_FILENAME}}
         path: ${{env.FOLDER_TO_UPLOAD}}
 
-    # Can't figure out how to make a Release build with CMake for now..
-    - name: (Windows) Upload Artifact
-      if: runner.os == 'Windows'
-      uses: actions/upload-artifact@v4
-      with:
-        name: MudletBootstrap
-        path: ${{runner.workspace}}/build/Debug/MudletBootstrap.exe
