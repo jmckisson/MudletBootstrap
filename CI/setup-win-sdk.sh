@@ -140,8 +140,9 @@ done
 
 echo "=== Cloning Qt Source Repository ==="
 cd ~
-git clone --branch 6.8.1 --depth 1 https://github.com/qt/qt5.git qt6-source
+git clone --branch 6.8.1 --depth 1 --no-recurse-submodules https://github.com/qt/qt5.git qt6-source
 cd qt6-source
+git submodule update --init qtbase qttools qttranslations
 
 echo "=== Configuring Qt for Static Linking ==="
 perl init-repository --module-subset=qtbase,qttools,qttranslations
