@@ -145,7 +145,7 @@ cd qt6-source
 git submodule update --init qtbase qttools qttranslations
 
 echo "=== Configuring Qt for Static Linking ==="
-perl init-repository --module-subset=qtbase,qttools,qttranslations
+perl init-repository --module-subset=qtbase,qttools,qttranslations,qtnetwork
 cd ~
 mkdir qt-static-build
 cd qt-static-build
