@@ -83,6 +83,13 @@ jobs:
     #       echo "CXX=clang++" >> $GITHUB_ENV
     #       echo "CC=clang" >> $GITHUB_ENV
 
+    - name: (Windows) Setup MSYS2
+      if: runner.os == 'Windows'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+
     - name: (Windows) Build Environment Setup
       if: runner.os == 'Windows'
       shell: msys2 {0}
