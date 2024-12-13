@@ -166,7 +166,6 @@ cmake -DCMAKE_BUILD_TYPE=Release \
       -DQT_BUILD_TESTS=OFF \
       -DQT_BUILD_EXAMPLES=OFF \
       -DBUILD_SHARED_LIBS=OFF \
-      -DQT_BUILD_SUBMODULES=qtbase;qttools;qttranslations \
       -G Ninja ../qt6-source
 
 echo "=== Compiling Qt ==="
