@@ -24,6 +24,7 @@ jobs:
             qt: '6.8.1'
           - os: windows-2019
             buildname: 'Windows'
+            qt: '6.8.1'
 
     steps:
     - name: Checkout Source
@@ -101,10 +102,11 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: ${{runner.workspace}}/ccache
-        key: ccache-${{matrix.os}}-${{matrix.compiler}}-${{matrix.qt}}-${{ github.sha }}
-        restore-keys: ccache-${{matrix.os}}-${{matrix.compiler}}-${{matrix.qt}}
+        key: ccache-${{matrix.os}}-${{matrix.buildname}}-${{ github.sha }}
+        restore-keys: ccache-${{matrix.os}}-${{matrix.buildname}}
 
     - name: check ccache stats prior to build
+      if: runner.os == 'Linux' || runner.os == 'macOS'
       run: ccache --zero-stats --show-stats
 
     - name: (Linux, macOS) Build
