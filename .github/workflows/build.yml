@@ -91,12 +91,6 @@ jobs:
         msystem: MINGW64
         update: true
 
-    - name: (Windows) Build Environment Setup
-      if: runner.os == 'Windows'
-      shell: msys2 {0}
-      run: |
-        $GITHUB_WORKSPACE/CI/setup-win-sdk.sh
-
     - name: Restore ccache
       id: restore-ccache
       uses: actions/cache/restore@v4
@@ -104,10 +98,16 @@ jobs:
         path: ${{runner.workspace}}/ccache
         key: ccache-${{matrix.os}}-${{matrix.buildname}}-${{ github.sha }}
         restore-keys: ccache-${{matrix.os}}-${{matrix.buildname}}
-
+    
     - name: check ccache stats prior to build
       if: runner.os == 'Linux' || runner.os == 'macOS'
       run: ccache --zero-stats --show-stats
+
+    - name: (Windows) Build Environment Setup
+      if: runner.os == 'Windows'
+      shell: msys2 {0}
+      run: |
+        $GITHUB_WORKSPACE/CI/setup-win-sdk.sh
 
     - name: (Linux, macOS) Build
       if: runner.os == 'Linux' || runner.os == 'macOS'
