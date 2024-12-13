@@ -148,11 +148,12 @@ perl init-repository --module-subset=qtbase,qttools,qttranslations
 cd ~
 mkdir qt-static-build
 cd qt-static-build
-../qt6-source/configure -prefix $PWD/qt-static-install -static -release -opensource -confirm-license -nomake tests -nomake examples -platform win32-g++ -openssl-linked
+../qt6-source/configure -prefix $PWD/qt-static-install -static -release -opensource -confirm-license -nomake tests -nomake examples -no-docs -skip qt3d -skip qtmultimedia -platform win32-g++ -openssl-linked -Wno-dev
 
 echo "=== Compiling Qt ==="
-cd qt-static-build
-mingw32-make -j$(nproc)
-mingw32-make install
+cmake --build . --parallel
+
+echo "=== Installing Qt ==="
+cmake --install .
 
 exit 0
