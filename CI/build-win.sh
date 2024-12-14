@@ -79,7 +79,8 @@ Qt6_PREFIX=${RUNNER_WORKSPACE_UNIX_PATH}/qt-static-build/qt-static-install
 Qt6_DIR=${Qt6_PREFIX}/lib/cmake/Qt6
 
 echo "Running CMake configure..."
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$Qt6_PREFIX -DQt6_DIR=$Qt6_DIR ..
+echo "cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$Qt6_PREFIX -DQT_DIR=$Qt6_DIR .."
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$Qt6_PREFIX -DQT_DIR=$Qt6_DIR ..
 
 echo "Building.."
 ninja
