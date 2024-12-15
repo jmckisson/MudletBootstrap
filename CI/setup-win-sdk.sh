@@ -153,12 +153,12 @@ git submodule update --init qtbase qttools qttranslations
 
 echo "=== Configuring Qt for Static Linking ==="
 perl init-repository --module-subset=qtbase,qttools,qttranslations
-cd ~
+cd ${RUNNER_WORKSPACE}
 mkdir qt-static-build
 cd qt-static-build
 export CMAKE_SUPPRESS_DEVELOPER_WARNINGS=ON
 
-../qt6-source/configure -prefix ${GITHUB_WORKSPACE}/qt-static-install -static -release -opensource -confirm-license -init-submodules -submodules qtbase,qttranslations,qttools -nomake tests -nomake examples -skip qt3d -skip qtmultimedia -skip qtdeclarative -skip qtshadertools -skip qtquick -skip designer -no-opengl -no-dbus -platform win32-g++ -openssl-linked -ccache
+../qt6-source/configure -prefix ${RUNNER_WORKSPACE}/qt-static-install -static -release -opensource -confirm-license -init-submodules -submodules qtbase,qttranslations,qttools -nomake tests -nomake examples -skip qt3d -skip qtmultimedia -skip qtdeclarative -skip qtshadertools -skip qtquick -skip designer -no-opengl -no-dbus -platform win32-g++ -openssl-linked -ccache
 
 # CMake configuration with ccache integration
 #cmake -DCMAKE_BUILD_TYPE=Release \

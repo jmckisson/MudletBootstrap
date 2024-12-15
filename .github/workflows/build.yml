@@ -106,10 +106,6 @@ jobs:
       shell: msys2 {0}
       run: |
         $GITHUB_WORKSPACE/CI/setup-win-sdk.sh
-      env:
-        GH_RUNNER_WORKSPACE: ${{runner.workspace}}
-        GH_GITHUB_WORKSPACE: ${{github.workspace}}
-
 
     - name: Save Qt cache
       if: runner.os == 'Windows' && steps.restore-qt.outputs.cache-hit != 'true'
