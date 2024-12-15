@@ -75,14 +75,14 @@ cd $GITHUB_WORKSPACE || exit 1
 mkdir build
 cd build
 
-Qt6_PREFIX=${RUNNER_WORKSPACE_UNIX_PATH}/qt-static-build/qt-static-install
-QT_DIR=/home/runneradmin/qt-static-build/qt-static-install/lib/cmake/Qt6
+Qt6_PREFIX=$/d/a/MudletBootstrap/qt-static-build/qt-static-install
+QT_DIR=/d/a/MudletBootstrap/qt-static-build/qt-static-install/lib/cmake/Qt6
 export QT_DIR
 echo "QWt6_PREFIX is: ${Qt6_PREFIX}"
 echo "QT_DIR is: ${QT_DIR}"
 echo "Running CMake configure..."
 echo "cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$Qt6_PREFIX -DQT_DIR=$QT_DIR .."
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$Qt6_PREFIX -DQT_DIR=$QT_DIR ..
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$Qt6_PREFIX -DQT_DIR=$QT_DIR --debug-find ..
 
 echo "Building.."
 ninja
