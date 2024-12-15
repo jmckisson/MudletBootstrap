@@ -142,6 +142,8 @@ done
 #export CXX="ccache g++"
 ccache --max-size=10G
 
+echo "=== Listing Environment Variables ==="
+printenv
 
 echo "=== Cloning Qt Source Repository ==="
 cd ~
@@ -156,7 +158,7 @@ mkdir qt-static-build
 cd qt-static-build
 export CMAKE_SUPPRESS_DEVELOPER_WARNINGS=ON
 
-../qt6-source/configure -prefix $PWD/qt-static-install -static -release -opensource -confirm-license -init-submodules -submodules qtbase,qttools,qttranslations -nomake tests -nomake examples -skip qt3d -skip qtmultimedia -skip qtdeclarative -skip qtshadertools -skip qtquick -skip designer -no-opengl -no-dbus -platform win32-g++ -openssl-linked -ccache
+../qt6-source/configure -prefix ${GITHUB_WORKSPACE}/qt-static-install -static -release -opensource -confirm-license -init-submodules -submodules qtbase,qttranslations,qttools -nomake tests -nomake examples -skip qt3d -skip qtmultimedia -skip qtdeclarative -skip qtshadertools -skip qtquick -skip designer -no-opengl -no-dbus -platform win32-g++ -openssl-linked -ccache
 
 # CMake configuration with ccache integration
 #cmake -DCMAKE_BUILD_TYPE=Release \
