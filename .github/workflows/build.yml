@@ -94,6 +94,7 @@ jobs:
         sudo apt-get install ccache pkg-config
   
         echo "CCACHE_DIR=${{runner.workspace}}/ccache" >> $GITHUB_ENV
+        echo "QT_ROOT=${{runner.workspace}}/qt-static-install" >> $GITHUB_ENV
   
       #- name: (Linux Clang) Set clang compiler
       #  if: runner.os == 'Linux'
@@ -113,7 +114,9 @@ jobs:
 
     - name: (Linux) Compile Qt
       if: runner.os == 'Linux' && steps.restore-qt.outputs.cache-hit != 'true'
-      run: ${GITHUB_WORKSPACE}/CI/compile-qt-win.sh
+      run: |
+        chmod +x ${GITHUB_WORKSPACE}/CI/compile-qt-win.sh
+        ${GITHUB_WORKSPACE}/CI/compile-qt-win.sh
 
     - name: Save Qt cache
       if: (runner.os == 'Windows' || runner.os == 'Linux') && steps.restore-qt.outputs.cache-hit != 'true'
