@@ -104,8 +104,12 @@ jobs:
     - name: (Windows) Build Environment Setup
       if: runner.os == 'Windows'
       shell: msys2 {0}
-      run: |
-        $GITHUB_WORKSPACE/CI/setup-win-sdk.sh
+      run: $GITHUB_WORKSPACE/CI/setup-win-sdk.sh
+
+    - name: (Windows) Compile Qt
+      if: runner.os == 'Windows' && steps.restore-qt.outputs.cache-hit != 'true'
+      shell: msys2 {0}
+      run: $GITHUB_WORKSPACE/CI/compile-qt-win.sh
 
     - name: Save Qt cache
       if: runner.os == 'Windows' && steps.restore-qt.outputs.cache-hit != 'true'
@@ -150,6 +154,7 @@ jobs:
         key: ${{ steps.restore-ccache.outputs.cache-primary-key }}
 
     - name: check ccache stats post build
+      if: runner.os == 'Linux' || runner.os == 'macOS'
       run: ccache --show-stats
 
     - name: (Windows) Package
