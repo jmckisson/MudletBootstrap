@@ -115,8 +115,8 @@ jobs:
     - name: (Linux) Compile Qt
       if: runner.os == 'Linux' && steps.restore-qt.outputs.cache-hit != 'true'
       run: |
-        chmod +x ${GITHUB_WORKSPACE}/CI/compile-qt-win.sh
-        ${GITHUB_WORKSPACE}/CI/compile-qt-win.sh
+        chmod +x ${GITHUB_WORKSPACE}/CI/compile-qt-linux.sh
+        ${GITHUB_WORKSPACE}/CI/compile-qt-linux.sh
 
     - name: Save Qt cache
       if: (runner.os == 'Windows' || runner.os == 'Linux') && steps.restore-qt.outputs.cache-hit != 'true'
