@@ -82,7 +82,7 @@ moveToUploadDir() {
 mv "$PACKAGE_DIR/MudletBootstrap.exe" "MudletBootstrap.exe"
 
 # Define the upload filename
-uploadFilename="MudletBootstrap"
+uploadFilename="MudletBootstrap-${MSYSTEM}"
 
 # Move packaged files to the upload directory
 moveToUploadDir "$uploadFilename" 1
