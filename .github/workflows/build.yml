@@ -91,7 +91,9 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install ccache pkg-config clang-12 llvm-12 libclang-dev
+        sudo apt remove clang-13
+        sudo apt remove clang-14
+        sudo apt-get install ccache pkg-config clang-12 llvm-12 libclang-12-dev llvm-12-dev llvm-12-dev
   
         echo "CCACHE_DIR=${{runner.workspace}}/ccache" >> $GITHUB_ENV
         echo "QT_ROOT=${{runner.workspace}}/qt-static-install" >> $GITHUB_ENV
