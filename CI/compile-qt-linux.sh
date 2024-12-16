@@ -26,7 +26,7 @@ export CMAKE_SUPPRESS_DEVELOPER_WARNINGS=ON
 #      -G Ninja ../qt6-source
 
 echo "=== Compiling Qt ==="
-cmake --build . -- -j4
+cmake --build . -- -j2
 
 echo "=== Installing Qt ==="
 cmake --install .
