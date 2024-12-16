@@ -32,13 +32,13 @@ jobs:
     - name: Checkout Source
       uses: actions/checkout@v4
 
-    - name: Install Qt
-      if: runner.os == 'Linux' || runner.os == 'macOS'
-      uses: jurplel/install-qt-action@v4
-      with:
-        version: ${{matrix.qt}}
-        dir: ${{runner.workspace}}
-        cache: true
+    #- name: Install Qt
+    #  if: runner.os == 'Linux' || runner.os == 'macOS'
+    #  uses: jurplel/install-qt-action@v4
+    #  with:
+    #    version: ${{matrix.qt}}
+    #    dir: ${{runner.workspace}}
+    #    cache: true
 
     - name: Use CMake 3.30.3
       if: runner.os == 'Linux' || runner.os == 'macOS'
@@ -72,20 +72,6 @@ jobs:
         echo "SDKROOT=$(xcrun --sdk macosx --show-sdk-path)" >> $GITHUB_ENV
         echo "CCACHE_DIR=${{runner.workspace}}/ccache" >> $GITHUB_ENV
 
-    - name: (Linux) Install dependencies
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt-get update
-        sudo apt-get install ccache pkg-config
-
-        echo "CCACHE_DIR=${{runner.workspace}}/ccache" >> $GITHUB_ENV
-
-    #- name: (Linux Clang) Set clang compiler
-    #  if: runner.os == 'Linux'
-    #  run: |
-    #       echo "CXX=clang++" >> $GITHUB_ENV
-    #       echo "CC=clang" >> $GITHUB_ENV
-
     - name: (Windows) Setup MSYS2
       if: runner.os == 'Windows'
       uses: msys2/setup-msys2@v2
@@ -94,12 +80,26 @@ jobs:
         update: true
 
     - name: Restore Qt cache
-      if: runner.os == 'Windows'
+      if: runner.os == 'Windows' || runner.os == 'Linux'
       id: restore-qt
       uses: actions/cache/restore@v4
       with:
         path: ${{env.QT_ROOT}}
         key: qt
+
+    - name: (Linux) Install dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install ccache pkg-config
+  
+        echo "CCACHE_DIR=${{runner.workspace}}/ccache" >> $GITHUB_ENV
+  
+      #- name: (Linux Clang) Set clang compiler
+      #  if: runner.os == 'Linux'
+      #  run: |
+      #       echo "CXX=clang++" >> $GITHUB_ENV
+      #       echo "CC=clang" >> $GITHUB_ENV
     
     - name: (Windows) Build Environment Setup
       if: runner.os == 'Windows'
@@ -111,8 +111,12 @@ jobs:
       shell: msys2 {0}
       run: $GITHUB_WORKSPACE/CI/compile-qt-win.sh
 
+    - name: (Linux) Compile Qt
+      if: runner.os == 'Linux' && steps.restore-qt.outputs.cache-hit != 'true'
+      run: ${GITHUB_WORKSPACE}/CI/compile-qt-win.sh
+
     - name: Save Qt cache
-      if: runner.os == 'Windows' && steps.restore-qt.outputs.cache-hit != 'true'
+      if: (runner.os == 'Windows' || runner.os == 'Linux') && steps.restore-qt.outputs.cache-hit != 'true'
       uses: actions/cache/save@v4
       with:
         path: ${{env.QT_ROOT}}
