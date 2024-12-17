@@ -48,14 +48,12 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Install Qt
-      # need to install qt via homebrew for qt5 on arm64-osx
       if: runner.os == 'Linux' || runner.os == 'macOS'
       uses: jurplel/install-qt-action@v4
       with:
         version: ${{matrix.qt}}
         dir: ${{runner.workspace}}
         cache: true
-        modules: ${{ startsWith(matrix.qt, '6') && 'qt5compat qtmultimedia' || '' }}
 
     - name: Use CMake 3.30.3
       if: runner.os == 'Linux' || runner.os == 'macOS'
