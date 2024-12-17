@@ -25,9 +25,6 @@ jobs:
           - os: windows-2019
             buildname: 'Windows'
             qt: '6.8.1'
-    env:
-      QT_ROOT: /d/a/MudletBootstrap/qt-static-install
-
 
     steps:
 
@@ -171,7 +168,7 @@ jobs:
     #      -DCMAKE_PREFIX_PATH=${{ env.QT_PREFIX != '' && env.QT_PREFIX || env.MINGW_BASE_DIR }}
 
     - name: (Linux, macOS) Build
-      if: runner.os == 'Linux'
+      if: runner.os == 'Linux' || runner.os == 'macOS'
       uses: lukka/run-cmake@v3
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
