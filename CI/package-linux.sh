@@ -50,6 +50,9 @@ rm -rf squashfs-root/
 pwd
 ls
 
+BUILD_COMMIT=$(git rev-parse --short HEAD)
+
+mv MudletBootstrap-${BUILD_COMMIT}-x86_64.AppImage MudletBootstrap.AppImage
 chmod +x "MudletBootstrap.AppImage"
 tar -cvf "MudletBootstrap-linux-x64.AppImage.tar" "MudletBootstrap.AppImage"
 
