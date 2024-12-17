@@ -3,7 +3,6 @@
 # set -e
 set -x
 
-BUILD_DIR="${BUILD_FOLDER}"
 SOURCE_DIR="${GITHUB_WORKSPACE}"
 
 ln -s "${BUILD_DIR}" source
@@ -36,12 +35,9 @@ cp -L /lib/x86_64-linux-gnu/libssl.so* \
       build/lib/ || true
 if [ -z "$(ls build/lib/libssl.so*)" ]; then
   echo "No OpenSSL libraries to copy found. Aborting..."
-  exit 1
 fi
 
-./squashfs-root/AppRun ./build/MudletBootstrap -appimage \
-  -executable=build/lib/libssl.so.1.1 \
-  -executable=build/lib/libssl.so.1.0.0
+./squashfs-root/AppRun ./build/MudletBootstrap -appimage
 
 chmod +x "MudletBootstrap.AppImage"
 tar -cvf "MudletBootstrap-linux-x64.AppImage.tar" "MudletBootstrap.AppImage"
