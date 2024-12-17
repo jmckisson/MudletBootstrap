@@ -28,24 +28,34 @@ jobs:
 
     steps:
 
-    - name: Maximize build space
-      if: runner.os == 'Linux'
-      uses: easimon/maximize-build-space@master
-      with:
-        swap-size-mb: 1024
-        remove-dotnet: 'true'
-        remove-android: 'true'
-        remove-haskell: 'true'
-        remove-docker-images: 'true'
+    #- name: Maximize build space
+    #  if: runner.os == 'Linux'
+    #  uses: easimon/maximize-build-space@master
+    #  with:
+    #    swap-size-mb: 1024
+    #    remove-dotnet: 'true'
+    #    remove-android: 'true'
+    #    remove-haskell: 'true'
+    #    remove-docker-images: 'true'
 
-    - name: Check Free Space
-      if: runner.os == 'Linux' || runner.os == 'macOS'
-      run: |
-          echo "Free space:"
-          df -h
+    #- name: Check Free Space
+    #  if: runner.os == 'macOS'
+    #  run: |
+    #      echo "Free space:"
+    #      df -h
 
     - name: Checkout Source
       uses: actions/checkout@v4
+
+    - name: Install Qt
+      # need to install qt via homebrew for qt5 on arm64-osx
+      if: runner.os == 'Linux' || runner.os == 'macOS'
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{matrix.qt}}
+        dir: ${{runner.workspace}}
+        cache: true
+        modules: ${{ startsWith(matrix.qt, '6') && 'qt5compat qtmultimedia' || '' }}
 
     - name: Use CMake 3.30.3
       if: runner.os == 'Linux' || runner.os == 'macOS'
@@ -78,21 +88,14 @@ jobs:
         echo "DEVELOPER_DIR=$(xcode-select --print-path)" >> $GITHUB_ENV
         echo "SDKROOT=$(xcrun --sdk macosx --show-sdk-path)" >> $GITHUB_ENV
         echo "CCACHE_DIR=${{runner.workspace}}/ccache" >> $GITHUB_ENV
-        echo "QT_ROOT=${{github.workspace}}/../qt-static-install" >> $GITHUB_ENV
-        echo "QT_DIR=${{github.workspace}}/../qt-static-install/lib/cmake/Qt6" >> $GITHUB_ENV
 
     - name: (Linux) Install dependencies
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install ccache pkg-config clang-12 llvm-12 libclang-12-dev llvm-12-dev llvm-12-dev
+        sudo apt-get install ccache pkg-config
 
-        sudo apt autoremove
-        sudo apt autoclean
-  
         echo "CCACHE_DIR=${{runner.workspace}}/ccache" >> $GITHUB_ENV
-        echo "QT_ROOT=${{github.workspace}}/qt-static-install" >> $GITHUB_ENV
-        echo "QT_DIR=${{github.workspace}}/qt-static-install/lib/cmake/Qt6" >> $GITHUB_ENV
 
     - name: (Windows) Setup MSYS2
       if: runner.os == 'Windows'
@@ -109,6 +112,7 @@ jobs:
         echo "QT_ROOT=${{runner.workspace}}/qt-static-install" >> $GITHUB_ENV
 
     - name: Restore Qt cache
+      if: runner.os == 'Windows'
       id: restore-qt
       uses: actions/cache/restore@v4
       with:
@@ -120,20 +124,20 @@ jobs:
       shell: msys2 {0}
       run: $GITHUB_WORKSPACE/CI/compile-qt-win.sh
 
-    - name: (Linux) Compile Qt
-      if: runner.os == 'Linux' && steps.restore-qt.outputs.cache-hit != 'true'
-      run: |
-        chmod +x ${GITHUB_WORKSPACE}/CI/compile-qt-linux.sh
-        ${GITHUB_WORKSPACE}/CI/compile-qt-linux.sh
+    #- name: (Linux) Compile Qt
+    #  if: runner.os == 'Linux' && steps.restore-qt.outputs.cache-hit != 'true'
+    #  run: |
+    #    chmod +x ${GITHUB_WORKSPACE}/CI/compile-qt-linux.sh
+    #    ${GITHUB_WORKSPACE}/CI/compile-qt-linux.sh
 
-    - name: (macOS) Compile Qt
-      if: runner.os == 'macOS' && steps.restore-qt.outputs.cache-hit != 'true'
-      run: |
-        chmod +x ${GITHUB_WORKSPACE}/CI/compile-qt-mac.sh
-        ${GITHUB_WORKSPACE}/CI/compile-qt-mac.sh
+    #- name: (macOS) Compile Qt
+    #  if: runner.os == 'macOS' && steps.restore-qt.outputs.cache-hit != 'true'
+    #  run: |
+    #    chmod +x ${GITHUB_WORKSPACE}/CI/compile-qt-mac.sh
+    #    ${GITHUB_WORKSPACE}/CI/compile-qt-mac.sh
 
     - name: Save Qt cache
-      if: steps.restore-qt.outputs.cache-hit != 'true'
+      if: runner.os == 'Windows' && steps.restore-qt.outputs.cache-hit != 'true'
       uses: actions/cache/save@v4
       with:
         path: ${{env.QT_ROOT}}
@@ -151,17 +155,6 @@ jobs:
       if: runner.os == 'Linux' || runner.os == 'macOS'
       run: ccache --zero-stats --show-stats
 
-    #- name: (macOS) Build
-    #  if: runner.os == 'macOS'
-    #  uses: lukka/run-cmake@v3
-    #  with:
-    #    cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-    #    cmakeListsTxtPath: '${{github.workspace}}/CMakeLists.txt'
-    #    useVcpkgToolchainFile: true
-    #    buildDirectory: '${{runner.workspace}}/build'
-    #    cmakeAppendedArgs: >-
-    #      -DCMAKE_PREFIX_PATH=${{ env.QT_PREFIX != '' && env.QT_PREFIX || env.MINGW_BASE_DIR }}
-
     - name: (Linux, macOS) Build
       if: runner.os == 'Linux' || runner.os == 'macOS'
       uses: lukka/run-cmake@v3
@@ -171,7 +164,7 @@ jobs:
         useVcpkgToolchainFile: true
         buildDirectory: '${{github.workspace}}/build'
         cmakeAppendedArgs: >-
-            -DCMAKE_PREFIX_PATH=${{ env.QT_ROOT != '' && env.QT_ROOT || env.MINGW_BASE_DIR }}
+            -DCMAKE_PREFIX_PATH=${{ env.QT_PREFIX != '' && env.QT_PREFIX || env.MINGW_BASE_DIR }}
 
     - name: (Windows) Build
       if: runner.os == 'Windows'
@@ -212,17 +205,13 @@ jobs:
           echo "UPLOAD_FILENAME=${appBaseName}"
         } >> "$GITHUB_ENV"
 
-    #- name: (Linux) Prep for Artifact Upload
-    #  if: runner.os == 'Linux'
-    #  env:
-    #    BUILD_DIR: ${{runner.workspace}}/build
-    #  run: |
-    #    mkdir "upload/"
-    #    mv "MudletBootstrap-${VERSION}${MUDLET_VERSION_BUILD}-${BUILD_COMMIT}-linux-x64.AppImage.tar" "upload/"
-    #    {
-    #      echo "FOLDER_TO_UPLOAD=$(pwd)/upload"
-    #      echo "UPLOAD_FILENAME=Mudlet-${VERSION}${MUDLET_VERSION_BUILD}-${BUILD_COMMIT}-linux-x64"
-    #    } >> "$GITHUB_ENV"
+    - name: (Linux) Prep for Artifact Upload
+      if: runner.os == 'Linux'
+      env:
+        BUILD_DIR: ${{runner.workspace}}/build
+      run: |
+        chmod +x $GITHUB_WORKSPACE/CI/package-linux.sh
+        $GITHUB_WORKSPACE/CI/package-linux.sh
 
     - name: Upload Packaged Product
       uses: actions/upload-artifact@v4
