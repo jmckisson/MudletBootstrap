@@ -17,7 +17,7 @@ export OPENSSL_ROOT_DIR=$(brew --prefix openssl@3)
 export PATH="/usr/local/opt/openssl@3/bin:$PATH"
 
 # Configure Qt
-../qt6-source/configure -prefix ${GITHUB_WORKSPACE}/../qt-static-install \
+${GITHUB_WORKSPACE}/qt6-source/configure -prefix ${GITHUB_WORKSPACE}/../qt-static-install \
     -static \
     -release \
     -opensource \
