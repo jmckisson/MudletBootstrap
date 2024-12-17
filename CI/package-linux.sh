@@ -25,7 +25,10 @@ else
   exit 2
 fi
 
-cp "$SOURCE_DIR"/mudlet{.desktop,.png,.svg} build/
+cp "$SOURCE_DIR"/mudlet{.png,.svg} build/
+cp "$SOURCE_DIR"/mudletbootstrap.desktop build/
+
+ls
 
 ./linuxdeployqt.AppImage --appimage-extract
 
@@ -41,8 +44,11 @@ fi
 
 ./squashfs-root/AppRun ./build/MudletBootstrap -appimage
 
+# clean up extracted appimage
+rm -rf squashfs-root/
+
 pwd
-ls -R
+ls
 
 chmod +x "MudletBootstrap.AppImage"
 tar -cvf "MudletBootstrap-linux-x64.AppImage.tar" "MudletBootstrap.AppImage"

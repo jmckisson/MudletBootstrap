@@ -1,9 +1,9 @@
 [Desktop Entry]
-Name=Mudlet
-X-AppInstall-Package=mudlet
-GenericName=Mud Client
+Name=MudletBootstrap
+X-AppInstall-Package=MudletBootstrap
+GenericName=Mud Client Launcherf
 Comment=Play online text-based games (MUDs)
-Exec=mudlet %f
+Exec=MudletBootstrap %f
 Terminal=false
 Type=Application
 MimeType=application/zip;
