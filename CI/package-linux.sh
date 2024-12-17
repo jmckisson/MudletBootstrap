@@ -25,6 +25,8 @@ else
   exit 2
 fi
 
+cp "$SOURCE_DIR"/mudlet{.desktop,.png,.svg} build/
+
 ./linuxdeployqt.AppImage --appimage-extract
 
 # Bundle libssl.so so Mudlet works on platforms that only distribute
