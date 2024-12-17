@@ -35,7 +35,6 @@ jobs:
       if: runner.os == 'Linux'
       uses: easimon/maximize-build-space@master
       with:
-        root-reserve-mb: 14000
         swap-size-mb: 1024
         remove-dotnet: 'true'
         remove-android: 'true'
@@ -118,7 +117,7 @@ jobs:
         df -h
   
         echo "CCACHE_DIR=${{runner.workspace}}/ccache" >> $GITHUB_ENV
-        echo "QT_ROOT=${{runner.workspace}}/qt-static-install" >> $GITHUB_ENV
+        echo "QT_ROOT=${{github.workspace}}/qt-static-install" >> $GITHUB_ENV
   
       #- name: (Linux Clang) Set clang compiler
       #  if: runner.os == 'Linux'
