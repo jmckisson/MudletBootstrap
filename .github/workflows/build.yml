@@ -81,13 +81,6 @@ jobs:
         echo "QT_ROOT=${{github.workspace}}/../qt-static-install" >> $GITHUB_ENV
         echo "QT_DIR=${{github.workspace}}/../qt-static-install/lib/cmake/Qt6" >> $GITHUB_ENV
 
-    - name: (Windows) Setup MSYS2
-      if: runner.os == 'Windows'
-      uses: msys2/setup-msys2@v2
-      with:
-        msystem: MINGW64
-        update: true
-
     - name: (Linux) Install dependencies
       if: runner.os == 'Linux'
       run: |
@@ -101,24 +94,26 @@ jobs:
         echo "QT_ROOT=${{github.workspace}}/qt-static-install" >> $GITHUB_ENV
         echo "QT_DIR=${{github.workspace}}/qt-static-install/lib/cmake/Qt6" >> $GITHUB_ENV
 
+    - name: (Windows) Setup MSYS2
+      if: runner.os == 'Windows'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+    
+    - name: (Windows) Build Environment Setup
+      if: runner.os == 'Windows'
+      shell: msys2 {0}
+      run: |
+        $GITHUB_WORKSPACE/CI/setup-win-sdk.sh
+        echo "QT_ROOT=${{runner.workspace}}/qt-static-install" >> $GITHUB_ENV
+
     - name: Restore Qt cache
-      #if: runner.os == 'Windows' || runner.os == 'Linux'
       id: restore-qt
       uses: actions/cache/restore@v4
       with:
         path: ${{env.QT_ROOT}}
         key: qt
-  
-      #- name: (Linux Clang) Set clang compiler
-      #  if: runner.os == 'Linux'
-      #  run: |
-      #       echo "CXX=clang++" >> $GITHUB_ENV
-      #       echo "CC=clang" >> $GITHUB_ENV
-    
-    - name: (Windows) Build Environment Setup
-      if: runner.os == 'Windows'
-      shell: msys2 {0}
-      run: $GITHUB_WORKSPACE/CI/setup-win-sdk.sh
 
     - name: (Windows) Compile Qt
       if: runner.os == 'Windows' && steps.restore-qt.outputs.cache-hit != 'true'
