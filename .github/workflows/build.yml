@@ -118,7 +118,7 @@ jobs:
   
         echo "CCACHE_DIR=${{runner.workspace}}/ccache" >> $GITHUB_ENV
         echo "QT_ROOT=${{github.workspace}}/qt-static-install" >> $GITHUB_ENV
-        echo "QT_DIR${{github.workspace}}/qt-static-install/lib/cmake/Qt6" >> $GITHUB_ENV
+        echo "QT_DIR=${{github.workspace}}/qt-static-install/lib/cmake/Qt6" >> $GITHUB_ENV
   
       #- name: (Linux Clang) Set clang compiler
       #  if: runner.os == 'Linux'
