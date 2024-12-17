@@ -41,6 +41,9 @@ fi
 
 ./squashfs-root/AppRun ./build/MudletBootstrap -appimage
 
+pwd
+ls -R
+
 chmod +x "MudletBootstrap.AppImage"
 tar -cvf "MudletBootstrap-linux-x64.AppImage.tar" "MudletBootstrap.AppImage"
 
