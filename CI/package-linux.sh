@@ -5,8 +5,6 @@ set -x
 
 SOURCE_DIR="${GITHUB_WORKSPACE}"
 
-ln -s "${BUILD_DIR}" source
-
 # unset LD_LIBRARY_PATH as it upsets linuxdeployqt
 export LD_LIBRARY_PATH=
 
@@ -25,26 +23,29 @@ else
   exit 2
 fi
 
-# Make sure build/lib dir exists so we can copy in the ssl libs
-mkdir build/lib
-ls build
+# create app directory for building the AppImage
+mkdir app
+mkdir app/lib
+cp build/MudletBootstrap app/
 
-cp "$SOURCE_DIR"/mudlet{.png,.svg} build/
-cp "$SOURCE_DIR"/mudletbootstrap.desktop build/
+cp "$SOURCE_DIR"/mudlet{.png,.svg} app/
+cp "$SOURCE_DIR"/mudletbootstrap.desktop app/
 
 ./linuxdeployqt.AppImage --appimage-extract
 
 # Bundle libssl.so so Mudlet works on platforms that only distribute
 # OpenSSL 1.1
 cp -L /usr/lib/x86_64-linux-gnu/libssl.so* \
-      build/lib/ || true
+      app/lib/ || true
 cp -L /lib/x86_64-linux-gnu/libssl.so* \
-      build/lib/ || true
-if [ -z "$(ls build/lib/libssl.so*)" ]; then
+      app/lib/ || true
+if [ -z "$(ls app/lib/libssl.so*)" ]; then
   echo "No OpenSSL libraries to copy found. Aborting..."
 fi
 
-./squashfs-root/AppRun ./build/MudletBootstrap -appimage
+./squashfs-root/AppRun ./app/MudletBootstrap -appimage \
+  -executable=app/lib/libssl.so.1.1 \
+  -executable=app/lib/libssl.so.1.0.0
 
 # clean up extracted appimage
 rm -rf squashfs-root/
