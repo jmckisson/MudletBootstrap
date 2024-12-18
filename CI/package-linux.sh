@@ -25,10 +25,13 @@ else
   exit 2
 fi
 
+# clean up the build/ folder
+rm -rf build/
+mkdir build
+mkdir build/lib
+
 cp "$SOURCE_DIR"/mudlet{.png,.svg} build/
 cp "$SOURCE_DIR"/mudletbootstrap.desktop build/
-
-ls
 
 ./linuxdeployqt.AppImage --appimage-extract
 
@@ -46,9 +49,6 @@ fi
 
 # clean up extracted appimage
 rm -rf squashfs-root/
-
-pwd
-ls
 
 BUILD_COMMIT=$(git rev-parse --short HEAD)
 
