@@ -25,10 +25,9 @@ else
   exit 2
 fi
 
-# clean up the build/ folder
-rm -rf build/
-mkdir build
+# Make sure build/lib dir exists so we can copy in the ssl libs
 mkdir build/lib
+ls build
 
 cp "$SOURCE_DIR"/mudlet{.png,.svg} build/
 cp "$SOURCE_DIR"/mudletbootstrap.desktop build/
