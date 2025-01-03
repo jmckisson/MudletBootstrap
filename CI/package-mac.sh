@@ -133,6 +133,9 @@ perl -pi -e "s|../source/build/.*MudletBootstrap.*\\.app|${BUILD_DIR}/${app}|i" 
 # Update icons to the correct type
 perl -pi -e "s|../source/src/icons/.*\\.icns|${SOURCE_DIR}/src/icons/mudlet.icns|i" "${SOURCE_DIR}/mudletbootstrap-appdmg.json"
 
+echo "Listing config file:"
+cat ${SOURCE_DIR}/mudletbootstrap-appdmg.json
+
 echo "Creating appdmg..."
 # Last: build *.dmg file
 appdmg "${SOURCE_DIR}/mudletbootstrap-appdmg.json" "${HOME}/Desktop/$(basename "${app%.*}").dmg"
