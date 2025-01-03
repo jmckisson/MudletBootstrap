@@ -116,6 +116,7 @@ macdeployqt "${app}" $( [ -n "$DEBUG" ] && echo "-verbose=3" )
 echo "Running macdeployqtfix"
 python macdeployqtfix.py "${app}/Contents/MacOS/MudletBootstrap" "${QT_DIR}" $( [ -n "$DEBUG" ] && echo "--verbose" )
 
+echo "Fixing plist entries..."
 /usr/libexec/PlistBuddy -c "Add CFBundleName string MudletBootstrap" "${app}/Contents/Info.plist" || true
 /usr/libexec/PlistBuddy -c "Add CFBundleDisplayName string MudletBootstrap" "${app}/Contents/Info.plist" || true
 
@@ -126,12 +127,13 @@ python macdeployqtfix.py "${app}/Contents/MacOS/MudletBootstrap" "${QT_DIR}" $( 
 cd ../../
 rm -f ~/Desktop/[mM]udletBootstrap*.dmg
 
+echo "Modifying config file..."
 # Modify appdmg config file according to the app file to package
 perl -pi -e "s|../source/build/.*MudletBootstrap.*\\.app|${BUILD_DIR}/${app}|i" "${SOURCE_DIR}/mudletbootstrap-appdmg.json"
 # Update icons to the correct type
 perl -pi -e "s|../source/src/icons/.*\\.icns|${SOURCE_DIR}/src/icons/mudlet.icns|i" "${SOURCE_DIR}/mudletbootstrap-appdmg.json"
 
-
+echo "Creating appdmg..."
 # Last: build *.dmg file
 appdmg "${SOURCE_DIR}/mudletbootstrap-appdmg.json" "${HOME}/Desktop/$(basename "${app%.*}").dmg"
 
