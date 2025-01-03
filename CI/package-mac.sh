@@ -84,6 +84,24 @@ then
     exit 1
 fi
 
+cd "${BUILD_DIR}"
+
+# get the app to package
+app=$(basename "${1}")
+
+if [ -z "$app" ]; then
+  echo "No MudletBootstrap app folder to package given."
+  echo "Usage: $pgm <MudletBootstrap app folder to package>"
+  exit 2
+fi
+app=$(find . -iname "${app}" -type d)
+if [ -z "${app}" ]; then
+  echo "error: couldn't determine location of the ./app folder"
+  exit 1
+fi
+
+echo "Deploying ${app}"
+
 if [ ! -f "macdeployqtfix.py" ]; then
   wget https://raw.githubusercontent.com/arl/macdeployqtfix/master/macdeployqtfix.py
 fi
