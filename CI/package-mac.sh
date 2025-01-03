@@ -87,7 +87,7 @@ fi
 cd "${BUILD_DIR}"
 
 # get the app to package
-app=$(basename "${1}")
+app=$(basename "${appBaseName}.app")
 
 if [ -z "$app" ]; then
   echo "No MudletBootstrap app folder to package given."
