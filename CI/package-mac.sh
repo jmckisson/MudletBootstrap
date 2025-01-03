@@ -127,6 +127,13 @@ echo "Fixing plist entries..."
 cd ../../
 rm -f ~/Desktop/[mM]udletBootstrap*.dmg
 
+echo "PWD:"
+pwd
+
+echo "APP: ${app}"
+echo "BUILD_DIR: ${BUILD_DIR}"
+echo "SOURCE_DIR: ${SOURCE_DIR}"
+
 echo "Modifying config file..."
 # Modify appdmg config file according to the app file to package
 perl -pi -e "s|../source/build/.*MudletBootstrap.*\\.app|${BUILD_DIR}/${app}|i" "${SOURCE_DIR}/mudletbootstrap-appdmg.json"
