@@ -194,14 +194,7 @@ jobs:
       if: runner.os == 'macOS'
       env:
         BUILD_DIR: ${{runner.workspace}}/build
-      run: |
-        mkdir -p "${BUILD_DIR}/upload/"
-        appBaseName="MudletBootstrap"
-        mv "${BUILD_DIR}/${appBaseName}.app" "${BUILD_DIR}/upload/"
-        {
-          echo "FOLDER_TO_UPLOAD=${BUILD_DIR}/upload"
-          echo "UPLOAD_FILENAME=${appBaseName}"
-        } >> "$GITHUB_ENV"
+      run: $GITHUB_WORKSPACE/CI/package-mac.sh
 
     - name: (Linux) Prep for Artifact Upload
       if: runner.os == 'Linux'
