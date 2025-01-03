@@ -55,11 +55,11 @@ YESTERDAY_DATE=$(date -v-1d '+%F' | tr -d '-')
 #fi
 
 appBaseName="MudletBootstrap"
-if [ -n "${GITHUB_REPOSITORY}" ]; then
-    mv "${BUILD_DIR}/mudletbootstrap.app" "${BUILD_DIR}/${appBaseName}.app"
-else
-    mv "${BUILD_DIR}/MudletBootstrap.app" "${BUILD_DIR}/${appBaseName}.app"
-fi
+#if [ -n "${GITHUB_REPOSITORY}" ]; then
+#    mv "${BUILD_DIR}/mudletbootstrap.app" "${BUILD_DIR}/${appBaseName}.app"
+#else
+#    mv "${BUILD_DIR}/MudletBootstrap.app" "${BUILD_DIR}/${appBaseName}.app"
+#fi
 
 #./make-installer.sh "${appBaseName}.app"
 
