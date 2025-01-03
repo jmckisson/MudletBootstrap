@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>MudletBootstrap</id>
+    <title>MudletBootstrap</title>
+    <version>0.0.0</version>
+    <authors>Mudlet Makers</authors>
+    <owners>Mudlet Makers</owners>
+    <licenseUrl>https://raw.githubusercontent.com/Mudlet/Mudlet/development/COPYING</licenseUrl>
+    <projectUrl>https://www.mudlet.org/</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/Mudlet/Mudlet/development/src/icons/mudlet_main_512x512_6XS_icon.ico</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A cross-platform, open source, and super fast MUD client with scripting in Lua.</description>
+    <copyright>Copyright 2008-2024, Mudlet Makers</copyright>
+    <tags>mud game rpg text</tags>
+  </metadata>
+</package>
