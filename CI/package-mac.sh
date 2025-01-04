@@ -129,7 +129,6 @@ rm -f ~/Desktop/[mM]udletBootstrap*.dmg
 
 echo "PWD:"
 pwd
-
 echo "APP: ${app}"
 echo "BUILD_DIR: ${BUILD_DIR}"
 echo "SOURCE_DIR: ${SOURCE_DIR}"
@@ -157,13 +156,13 @@ mkdir -p "${BUILD_DIR}/upload/"
 mv "${HOME}/Desktop/${appBaseName}.dmg" "${BUILD_DIR}/upload/"
 {
     echo "FOLDER_TO_UPLOAD=${BUILD_DIR}/upload"
-    echo "UPLOAD_FILENAME=${appBaseName}"
+    echo "UPLOAD_FILENAME=${appBaseName}-macOS"
 } >> "$GITHUB_ENV"
 DEPLOY_URL="Github artifact, see https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
 
 # delete keychain just in case
 if [ ! -z "$MACOS_SIGNING_PASS" ]; then
-security delete-keychain $KEYCHAIN
+    security delete-keychain $KEYCHAIN
 fi
 
 export DEPLOY_URL
