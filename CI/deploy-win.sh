@@ -60,7 +60,7 @@ fi
 
 while IFS=read -r line || [[ -n "$line" ]]; do
 
-  gameName="$line"
+  gameName=$(echo "$line" | tr -cd '[:alnum:]_-')
 
   PACKAGE_DIR="${GITHUB_WORKSPACE_UNIX_PATH}/package-${gameName}"
 
@@ -77,6 +77,8 @@ while IFS=read -r line || [[ -n "$line" ]]; do
   # Move packaged files to the upload directory
   echo "=== Copying files to upload directory ==="
   rsync -avR "${PACKAGE_DIR}"/./* "$uploadDirUnix"
+
+  cd "$GITHUB_WORKSPACE" || exit 1
 
 done < "${GITHUB_WORKSPACE}/GameList.txt"
 

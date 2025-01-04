@@ -71,7 +71,7 @@ cd $GITHUB_WORKSPACE_UNIX_PATH || exit 1
 
 while IFS= read -r line || [[ -n "$line" ]]; do
 
-  gameName="$line"
+  gameName=$(echo "$line" | tr -cd '[:alnum:]_-')
 
   PACKAGE_DIR="${GITHUB_WORKSPACE_UNIX_PATH}/package-${gameName}"
 
@@ -144,6 +144,8 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   for LIB in ${NEEDED_LIBS} ; do
     cp -v -p "${LIB}" . ;
   done
+
+  cd $GITHUB_WORKSPACE_UNIX_PATH || exit 1
 
 done < "${GITHUB_WORKSPACE}/GameList.txt"
 

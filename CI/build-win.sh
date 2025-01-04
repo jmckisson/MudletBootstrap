@@ -81,7 +81,7 @@ echo "QT_DIR is: ${QT_DIR}"
 
 echo "Building apps in GameList..."
 while IFS= read -r line || [[ -n "$line" ]]; do
-  gameName="$line"
+  gameName=$(echo "$line" | tr -cd '[:alnum:]_-')
 
   mkdir build-${gameName}
   cd build-${gameName}
@@ -100,6 +100,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   ninja
 
   echo " ${gameName} ... build finished"
+  cd "$GITHUB_WORKSPACE" || exit 1
 
 done < "${GITHUB_WORKSPACE}/GameList.txt"
 
