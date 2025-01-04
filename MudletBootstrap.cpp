@@ -203,7 +203,12 @@ void MudletBootstrap::onFetchPlatformFeedFinished() {
     QRegularExpressionMatch match = regex.match(info.url);
 
     if (match.hasMatch()) {
+        QString os = detectOS();
+        
         info.appName = match.captured(1);
+        if (os.startsWith("mac") || os.startsWith("linux")) {
+            info.appName += "." + match.captured(2);
+        }
     } else {
         qDebug() << "No match found in URL:" << info.url;
         return;
