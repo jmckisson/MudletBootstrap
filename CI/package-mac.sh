@@ -105,10 +105,12 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     echo "Usage: $pgm <MudletBootstrap app folder to package>"
     exit 2
   fi
+  find . -iname "${app}" -type d
   app=$(find . -iname "${app}" -type d)
   if [ -z "${app}" ]; then
     echo "error: couldn't determine location of the ./app folder"
     echo "app = ${app}"
+
     exit 1
   fi
 
