@@ -69,10 +69,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   # Remove specific file types from the directory
   rm ./*.cpp ./*.o
 
-  mv "$PACKAGE_DIR/MudletBootstrap.exe" "MudletBootstrap.exe"
-
-  # Define the upload filename
-  uploadFilename="MudletBootstrap-${MSYSTEM}-${gameName}"
+  mv "$PACKAGE_DIR/MudletBootstrap.exe" "MudletBootstrap-${gameName}.exe"
 
   # Move packaged files to the upload directory
   echo "=== Copying files to upload directory ==="
