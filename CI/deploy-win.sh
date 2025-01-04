@@ -83,5 +83,5 @@ done < "${GITHUB_WORKSPACE}/GameList.txt"
 # Append these variables to the GITHUB_ENV to make them available in subsequent steps
 {
   echo "FOLDER_TO_UPLOAD=${uploadDir}\\"
-  #echo "UPLOAD_FILENAME=$uploadFilename"
+  echo "UPLOAD_FILENAME=MudletBootstrap-${MSYSTEM}"
 } >> "$GITHUB_ENV"

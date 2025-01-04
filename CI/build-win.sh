@@ -72,7 +72,7 @@ echo ""
 
 cd $GITHUB_WORKSPACE || exit 1
 
-LAUNCH_INI_PATH="${SOURCE_DIR}/resources/launch.ini"
+LAUNCH_INI_PATH="${GITHUB_WORKSPACE}/resources/launch.ini"
 Qt6_PREFIX=${RUNNER_WORKSPACE}/qt-static-install
 QT_DIR=${Qt6_PREFIX}/lib/cmake/Qt6
 export QT_DIR
