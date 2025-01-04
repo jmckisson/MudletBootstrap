@@ -153,8 +153,8 @@ jobs:
       if: runner.os == 'Linux' || runner.os == 'macOS'
       run: ccache --zero-stats --show-stats
 
-    - name: (Linux, macOS) Build
-      if: runner.os == 'Linux' || runner.os == 'macOS'
+    - name: (Linux) Build
+      if: runner.os == 'Linux'
       uses: lukka/run-cmake@v3
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
@@ -163,6 +163,14 @@ jobs:
         buildDirectory: '${{github.workspace}}/build'
         cmakeAppendedArgs: >-
             -DCMAKE_PREFIX_PATH=${{ env.QT_PREFIX != '' && env.QT_PREFIX || env.MINGW_BASE_DIR }}
+
+    - name: (macOS) Build
+      if: runner.os == 'macOS'
+      env:
+        CMAKE_PREFIX_PATH: ${{ env.QT_PREFIX != '' && env.QT_PREFIX || env.MINGW_BASE_DIR }}
+      run: |
+        chmod +x $GITHUB_WORKSPACE/CI/build-mac.sh
+        $GITHUB_WORKSPACE/CI/build-mac.sh
 
     - name: (Windows) Build
       if: runner.os == 'Windows'
