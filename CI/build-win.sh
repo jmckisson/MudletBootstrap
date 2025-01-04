@@ -72,25 +72,31 @@ echo ""
 
 cd $GITHUB_WORKSPACE || exit 1
 
-mkdir build
-cd build
-
 Qt6_PREFIX=${RUNNER_WORKSPACE}/qt-static-install
 QT_DIR=${Qt6_PREFIX}/lib/cmake/Qt6
 export QT_DIR
 echo "Qt6_PREFIX is: ${Qt6_PREFIX}"
 echo "QT_DIR is: ${QT_DIR}"
-echo "Running CMake configure..."
-ls ${QT_DIR}/Qt6Config.cmake
 
-echo "cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$Qt6_PREFIX .."
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$Qt6_PREFIX --debug-find ..
+echo "Building apps in GameList..."
+while IFS= read -r line || [[ -n "$line" ]]; do
+  gameName="$line"
 
-echo "Building.."
-ninja
+  mkdir build-${gameName}
+  cd build-${gameName}
 
-echo " ... build finished"
-echo ""
+  echo "Running CMake configure..."
+  ls ${QT_DIR}/Qt6Config.cmake
+
+  echo "cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$Qt6_PREFIX .."
+  cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$Qt6_PREFIX ..
+
+  echo "Building.."
+  ninja
+
+  echo " ${gameName} ... build finished"
+
+done < "${GITHUB_WORKSPACE}/GameList.txt"
 
 cd ~ || exit 1
 exit 0

@@ -63,82 +63,88 @@ BUILD_CONFIG="release"
 MINGW_INTERNAL_BASE_DIR="/mingw${BUILD_BITNESS}"
 export MINGW_INTERNAL_BASE_DIR
 GITHUB_WORKSPACE_UNIX_PATH=$(echo ${GITHUB_WORKSPACE} | sed 's|\\|/|g' | sed 's|D:|/d|g')
-PACKAGE_DIR="${GITHUB_WORKSPACE_UNIX_PATH}/package"
 
 echo "MSYSTEM is: ${MSYSTEM}"
 echo ""
 
 cd $GITHUB_WORKSPACE_UNIX_PATH || exit 1
 
-if [ -d "${PACKAGE_DIR}" ]; then
-  # The wanted packaging dir exists - as is wanted
-  echo ""
-  echo "Checking for an empty ${PACKAGE_DIR} in which to assemble files..."
-  echo ""
-  if [ -n "$(ls -A ${PACKAGE_DIR})" ]; then
-    # But it isn't empty...
-    echo "${PACKAGE_DIR} does not appear to be empty, please"
-    echo "erase everything there and try again."
-    exit 4
+while IFS= read -r line || [[ -n "$line" ]]; do
+
+  gameName="$line"
+
+  PACKAGE_DIR="${GITHUB_WORKSPACE_UNIX_PATH}/package-${gameName}"
+
+  if [ -d "${PACKAGE_DIR}" ]; then
+    # The wanted packaging dir exists - as is wanted
+    echo ""
+    echo "Checking for an empty ${PACKAGE_DIR} in which to assemble files..."
+    echo ""
+    if [ -n "$(ls -A ${PACKAGE_DIR})" ]; then
+      # But it isn't empty...
+      echo "${PACKAGE_DIR} does not appear to be empty, please"
+      echo "erase everything there and try again."
+      exit 4
+    fi
+  else
+    echo ""
+    echo "Creating ${PACKAGE_DIR} in which to assemble files..."
+    echo ""
+    # This will create the directory if it doesn't exist but won't moan if it does
+    mkdir -p "${PACKAGE_DIR}"
   fi
-else
+  cd "${PACKAGE_DIR}" || exit 1
   echo ""
-  echo "Creating ${PACKAGE_DIR} in which to assemble files..."
+
+  echo "Copying wanted compiled files from ${GITHUB_WORKSPACE}/build-${gameName} to ${GITHUB_WORKSPACE}/package-${gameName} ..."
   echo ""
-  # This will create the directory if it doesn't exist but won't moan if it does
-  mkdir -p "${PACKAGE_DIR}"
-fi
-cd "${PACKAGE_DIR}" || exit 1
-echo ""
 
-echo "Copying wanted compiled files from ${GITHUB_WORKSPACE}/build to ${GITHUB_WORKSPACE}/package ..."
-echo ""
+  if [ ! -f "${GITHUB_WORKSPACE_UNIX_PATH}/build-${gameName}/MudletBootstrap.exe" ]; then
+    echo "ERROR: no MudletBootstrap executable found - did the previous build"
+    echo "complete sucessfully?"
+    exit 6
+  fi
 
-if [ ! -f "${GITHUB_WORKSPACE_UNIX_PATH}/build/MudletBootstrap.exe" ]; then
-  echo "ERROR: no MudletBootstrap executable found - did the previous build"
-  echo "complete sucessfully?"
-  exit 6
-fi
-
-cp "${GITHUB_WORKSPACE_UNIX_PATH}/build/MudletBootstrap.exe" "${PACKAGE_DIR}/"
-if [ -f "${GITHUB_WORKSPACE_UNIX_PATH}/build/MudletBootstrap.exe.debug" ]; then
-  cp "${GITHUB_WORKSPACE_UNIX_PATH}/build/MudletBootstrap.exe.debug" "${PACKAGE_DIR}/"
-fi
+  cp "${GITHUB_WORKSPACE_UNIX_PATH}/build-${gameName}/MudletBootstrap.exe" "${PACKAGE_DIR}/"
+  if [ -f "${GITHUB_WORKSPACE_UNIX_PATH}/build-${gameName}/MudletBootstrap.exe.debug" ]; then
+    cp "${GITHUB_WORKSPACE_UNIX_PATH}/build-${gameName}/MudletBootstrap.exe.debug" "${PACKAGE_DIR}/"
+  fi
 
 
-"${MINGW_INTERNAL_BASE_DIR}/bin/windeployqt6" ./MudletBootstrap.exe
+  "${MINGW_INTERNAL_BASE_DIR}/bin/windeployqt6" ./MudletBootstrap.exe
 
-ZIP_FILE_NAME="MudletBootstrap"
+  ZIP_FILE_NAME="MudletBootstrap"
 
 
-# To determine which system libraries have to be copied in it requires
-# continually trying to run the executable on the target type system
-# and adding in the libraries to the same directory and repeating that
-# until the executable actually starts to run. Alternatively running
-# ntldd ./mudlet.exe | grep "/mingw32" {for the 32 bit case, use "64" for
-# the other one} inside an Mingw32 (or 64) shell as appropriate will
-# produce the libraries that are likely to be needed below. Unfortunetly
-# this process is a little recursive in that you may have to repeat the
-# process for individual librarys. For ones used by lua modules this
-# can manifest as being unable to "require" the library within lua
-# and doing the above "ntldd" check revealed that, for instance,
-# "luasql/sqlite3.dll" needed "libsqlite3-0.dll"!
-#
-echo ""
-echo "Examining MudletBootstrap application to identify other needed libraries..."
+  # To determine which system libraries have to be copied in it requires
+  # continually trying to run the executable on the target type system
+  # and adding in the libraries to the same directory and repeating that
+  # until the executable actually starts to run. Alternatively running
+  # ntldd ./mudlet.exe | grep "/mingw32" {for the 32 bit case, use "64" for
+  # the other one} inside an Mingw32 (or 64) shell as appropriate will
+  # produce the libraries that are likely to be needed below. Unfortunetly
+  # this process is a little recursive in that you may have to repeat the
+  # process for individual librarys. For ones used by lua modules this
+  # can manifest as being unable to "require" the library within lua
+  # and doing the above "ntldd" check revealed that, for instance,
+  # "luasql/sqlite3.dll" needed "libsqlite3-0.dll"!
+  #
+  echo ""
+  echo "Examining MudletBootstrap application to identify other needed libraries..."
 
-  NEEDED_LIBS=$("${MINGW_INTERNAL_BASE_DIR}/bin/ntldd" --recursive ./MudletBootstrap.exe \
-    | /usr/bin/grep -v "Qt6" \
-    | /usr/bin/grep -i "mingw" \
-    | /usr/bin/cut -d ">" -f2 \
-    | /usr/bin/cut -d "(" -f1 \
-    | /usr/bin/sort)
+    NEEDED_LIBS=$("${MINGW_INTERNAL_BASE_DIR}/bin/ntldd" --recursive ./MudletBootstrap.exe \
+      | /usr/bin/grep -v "Qt6" \
+      | /usr/bin/grep -i "mingw" \
+      | /usr/bin/cut -d ">" -f2 \
+      | /usr/bin/cut -d "(" -f1 \
+      | /usr/bin/sort)
 
-echo ""
-echo "Copying these identified libraries..."
-for LIB in ${NEEDED_LIBS} ; do
-  cp -v -p "${LIB}" . ;
-done
+  echo ""
+  echo "Copying these identified libraries..."
+  for LIB in ${NEEDED_LIBS} ; do
+    cp -v -p "${LIB}" . ;
+  done
 
+done < "${GITHUB_WORKSPACE}/GameList.txt"
 
 exit 0

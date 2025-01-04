@@ -48,41 +48,40 @@ fi
 cd "$GITHUB_WORKSPACE" || exit 1
 
 GITHUB_WORKSPACE_UNIX_PATH=$(echo "${GITHUB_WORKSPACE}" | sed 's|\\|/|g' | sed 's|D:|/d|g')
-PACKAGE_DIR="${GITHUB_WORKSPACE_UNIX_PATH}/package"
 
-cd "$PACKAGE_DIR" || exit 1
+echo "=== Setting up upload directory ==="
+uploadDir="${GITHUB_WORKSPACE}\\upload"
+uploadDirUnix=$(echo "${uploadDir}" | sed 's|\\|/|g' | sed 's|D:|/d|g')
 
-# Remove specific file types from the directory
-rm ./*.cpp ./*.o
+# Check if the upload directory exists, if not, create it
+if [[ ! -d "$uploadDirUnix" ]]; then
+  mkdir -p "$uploadDirUnix"
+fi
 
-# Helper function to move a packaged mudlet to the upload directory and set up an artifact upload
-# We require the files to be uploaded to exist in $PACKAGE_DIR
-moveToUploadDir() {
-  local uploadFilename=$1
-  local unzip=$2
-  echo "=== Setting up upload directory ==="
-  local uploadDir="${GITHUB_WORKSPACE}\\upload"
-  local uploadDirUnix=$(echo "${uploadDir}" | sed 's|\\|/|g' | sed 's|D:|/d|g')
+while IFS=read -r line || [[ -n "$line" ]]; do
 
-  # Check if the upload directory exists, if not, create it
-  if [[ ! -d "$uploadDirUnix" ]]; then
-    mkdir -p "$uploadDirUnix"
-  fi
+  gameName="$line"
 
+  PACKAGE_DIR="${GITHUB_WORKSPACE_UNIX_PATH}/package-${gameName}"
+
+  cd "$PACKAGE_DIR" || exit 1
+
+  # Remove specific file types from the directory
+  rm ./*.cpp ./*.o
+
+  mv "$PACKAGE_DIR/MudletBootstrap.exe" "MudletBootstrap.exe"
+
+  # Define the upload filename
+  uploadFilename="MudletBootstrap-${MSYSTEM}-${gameName}"
+
+  # Move packaged files to the upload directory
   echo "=== Copying files to upload directory ==="
   rsync -avR "${PACKAGE_DIR}"/./* "$uploadDirUnix"
 
-  # Append these variables to the GITHUB_ENV to make them available in subsequent steps
-  {
-    echo "FOLDER_TO_UPLOAD=${uploadDir}\\"
-    echo "UPLOAD_FILENAME=$uploadFilename"
-  } >> "$GITHUB_ENV"
-}
+done < "${GITHUB_WORKSPACE}/GameList.txt"
 
-mv "$PACKAGE_DIR/MudletBootstrap.exe" "MudletBootstrap.exe"
-
-# Define the upload filename
-uploadFilename="MudletBootstrap-${MSYSTEM}"
-
-# Move packaged files to the upload directory
-moveToUploadDir "$uploadFilename" 1
+# Append these variables to the GITHUB_ENV to make them available in subsequent steps
+{
+  echo "FOLDER_TO_UPLOAD=${uploadDir}\\"
+  #echo "UPLOAD_FILENAME=$uploadFilename"
+} >> "$GITHUB_ENV"
