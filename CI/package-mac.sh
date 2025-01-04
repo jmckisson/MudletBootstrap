@@ -88,6 +88,8 @@ if [ ! -f "macdeployqtfix.py" ]; then
   wget https://raw.githubusercontent.com/arl/macdeployqtfix/master/macdeployqtfix.py
 fi
 
+echo "macdeployqtfix downloaded to $(pwd)"
+
 npm install -g appdmg
 
 while IFS= read -r line || [[ -n "$line" ]]; do
@@ -122,7 +124,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 
   # fix unfinished deployment of macdeployqt
   echo "Running macdeployqtfix"
-  python macdeployqtfix.py "${app}/Contents/MacOS/MudletBootstrap" "${QT_DIR}" $( [ -n "$DEBUG" ] && echo "--verbose" )
+  python ${GITHUB_WORKSPACE}/macdeployqtfix.py "${app}/Contents/MacOS/MudletBootstrap" "${QT_DIR}" $( [ -n "$DEBUG" ] && echo "--verbose" )
 
   echo "Fixing plist entries..."
   /usr/libexec/PlistBuddy -c "Add CFBundleName string MudletBootstrap" "${app}/Contents/Info.plist" || true
