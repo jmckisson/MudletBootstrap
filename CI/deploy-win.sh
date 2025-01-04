@@ -58,7 +58,7 @@ if [[ ! -d "$uploadDirUnix" ]]; then
   mkdir -p "$uploadDirUnix"
 fi
 
-while IFS=read -r line || [[ -n "$line" ]]; do
+while IFS= read -r line || [[ -n "$line" ]]; do
 
   gameName=$(echo "$line" | tr -cd '[:alnum:]_-')
 
