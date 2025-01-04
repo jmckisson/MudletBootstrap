@@ -92,6 +92,8 @@ echo "macdeployqtfix downloaded to $(pwd)"
 
 npm install -g appdmg
 
+mkdir -p "${GITHUB_WORKSPACE}/upload/"
+
 while IFS= read -r line || [[ -n "$line" ]]; do
   gameName=$(echo "$line" | tr -cd '[:alnum:]_-')
   appBaseName="MudletBootstrap"
@@ -160,13 +162,13 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   #    sign_and_notarize "${HOME}/Desktop/${appBaseName}.dmg"
   #fi
 
-  mv "${HOME}/Desktop/${appBaseName}.dmg" "${GITHUB_WORKSPACE}/upload/"
+  mv "${HOME}/Desktop/${appBaseName}.dmg" "${GITHUB_WORKSPACE}/upload/${appBaseName}-${gameName}.dmg"
 
 done < "${GITHUB_WORKSPACE}/GameList.txt"
 
 echo "=== ... later, via Github ==="
 # Move the finished file into a folder of its own, because we ask Github to upload contents of a folder
-mkdir -p "${GITHUB_WORKSPACE}/upload/"
+
 {
     echo "FOLDER_TO_UPLOAD=${GITHUB_WORKSPACE}/upload"
     echo "UPLOAD_FILENAME=${appBaseName}-macOS"
