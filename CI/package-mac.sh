@@ -98,7 +98,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   cd "${BUILD_DIR}"
 
   # get the app to package
-  app=$(basename "${appBaseName}-${gameName}.app")
+  app=$(basename "${appBaseName}.app")
 
   if [ -z "$app" ]; then
     echo "No MudletBootstrap app folder to package given."
