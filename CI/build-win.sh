@@ -72,6 +72,7 @@ echo ""
 
 cd $GITHUB_WORKSPACE || exit 1
 
+LAUNCH_INI_PATH="${SOURCE_DIR}/resources/launch.ini"
 Qt6_PREFIX=${RUNNER_WORKSPACE}/qt-static-install
 QT_DIR=${Qt6_PREFIX}/lib/cmake/Qt6
 export QT_DIR
@@ -84,6 +85,10 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 
   mkdir build-${gameName}
   cd build-${gameName}
+
+  # Update the `launch.ini` file
+  echo "Updating ${LAUNCH_INI_PATH} for MUDLET_PROFILES=${gameName}..."
+  sed -i.bak "s/^MUDLET_PROFILES=.*/MUDLET_PROFILES=${gameName}/" "$LAUNCH_INI_PATH"
 
   echo "Running CMake configure..."
   ls ${QT_DIR}/Qt6Config.cmake
