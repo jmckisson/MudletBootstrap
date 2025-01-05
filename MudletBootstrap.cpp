@@ -271,8 +271,17 @@ void installAndRunDmg(QProcessEnvironment &env, const QString& dmgFilePath) {
     if (QFile::exists(targetAppPath)) {
         qDebug() << "Application already exists at" << targetAppPath << ". Removing it...";
         if (!QFile::remove(targetAppPath)) {
-            qWarning() << "Failed to remove existing application.";
-            return;
+            qWarning() << "Failed to remove existing application, trying recursive delete...";
+            if (!QDir(targetAppPath).removeRecursively()) {
+                qWarning() << "Failed to recursively remove existing application.";
+                process.start("rm", {"-rf", targetAppPath});
+                process.waitForFinished();
+                if (process.exitCode() != 0) {
+                    qWarning() << "Failed to remove application:" << process.readAllStandardError();
+                    return;
+                }
+            }
+            
         }
         qDebug() << "Existing application removed successfully.";
     }
