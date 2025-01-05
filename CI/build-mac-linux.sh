@@ -19,34 +19,6 @@
 #   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             #
 ###########################################################################
 
-# Version: 2.0.0    Rework to build on an MSYS2 MINGW64 Github workflow
-#          1.5.0    Change BUILD_TYPE to BUILD_CONFIG to avoid clash with
-#                   CI/CB system using same variable
-#          1.4.0    Rewrite Makefile to use ccache.exe if available
-#          1.3.0    No changes
-#          1.2.0    No changes
-#          1.1.0    No changes
-#          1.0.0    Original version
-
-# Script to build the Mudlet code currently checked out in
-# ${GITHUB_WORKSPACE} in a MINGW32 or MINGW64 shell
-
-# To be used AFTER setup-windows-sdk.sh has been run; once this has completed
-# successfully, package-mudlet-for-windows.sh is run by the workflow
-
-# Exit codes:
-# 0 - Everything is fine. 8-)
-# 1 - Failure to change to a directory
-# 2 - Unsupported MSYS2/MINGGW shell type
-# 3 - Unsupported build type
-
-
-#MINGW_BASE_DIR="${GHCUP_MSYS2}\mingw32"
-#export MINGW_BASE_DIR
-#MINGW_INTERNAL_BASE_DIR="/mingw${BUILD_BITNESS}"
-#export MINGW_INTERNAL_BASE_DIR
-#PATH="${MINGW_INTERNAL_BASE_DIR}/usr/local/bin:${MINGW_INTERNAL_BASE_DIR}/bin:/usr/bin:${PATH}"
-#export PATH
 RUNNER_WORKSPACE_UNIX_PATH=$(echo "${RUNNER_WORKSPACE}" | sed 's|\\|/|g' | sed 's|D:|/d|g')
 export CCACHE_DIR=${RUNNER_WORKSPACE_UNIX_PATH}/ccache
 
@@ -58,11 +30,7 @@ echo ""
 cd $GITHUB_WORKSPACE || exit 1
 
 LAUNCH_INI_PATH="${GITHUB_WORKSPACE}/resources/launch.ini"
-#Qt6_PREFIX=${RUNNER_WORKSPACE}/qt-static-install
-#QT_DIR=${Qt6_PREFIX}/lib/cmake/Qt6
-#export QT_DIR
 echo "CMAKE_PREFIX_PATH is: ${CMAKE_PREFIX_PATH}"
-#echo "QT_DIR is: ${QT_DIR}"
 
 echo "Building apps in GameList..."
 while IFS= read -r line || [[ -n "$line" ]]; do
@@ -76,7 +44,6 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   sed -i.bak "s/^MUDLET_PROFILES=.*/MUDLET_PROFILES=${gameName}/" "$LAUNCH_INI_PATH"
 
   echo "Running CMake configure..."
-  #ls ${QT_DIR}/Qt6Config.cmake
 
   echo "cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .."
   cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..

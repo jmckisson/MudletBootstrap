@@ -25,6 +25,9 @@ fi
 
 mkdir "${GITHUB_WORKSPACE}/upload/"
 
+echo "Working in directory:"
+pwd
+
 while IFS= read -r line || [[ -n "$line" ]]; do
   gameName=$(echo "$line" | tr -cd '[:alnum:]_-')
 
@@ -63,8 +66,6 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   tar -cvf "MudletBootstrap-linux-x64.AppImage.tar" "MudletBootstrap.AppImage"
 
   mv "MudletBootstrap-linux-x64.AppImage.tar" "${GITHUB_WORKSPACE}/upload/MudletBootstrap-linux-x64-${gameName}.AppImage.tar"
-
-  ls app
 
   rm -rf app/
 done < "${GITHUB_WORKSPACE}/GameList.txt"
