@@ -64,12 +64,15 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 
   mv "MudletBootstrap-linux-x64.AppImage.tar" "${GITHUB_WORKSPACE}/upload/MudletBootstrap-linux-x64-${gameName}.AppImage.tar"
 
+  ls app
+
   rm -rf app/
 done < "${GITHUB_WORKSPACE}/GameList.txt"
 
 echo "=== ... later, via Github ==="
 # Move the finished file into a folder of its own, because we ask Github to upload contents of a folder
 
+ls ${GITHUB_WORKSPACE}/upload
 
 {
   echo "FOLDER_TO_UPLOAD=${GITHUB_WORKSPACE}/upload"
