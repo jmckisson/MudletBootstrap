@@ -146,28 +146,27 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   echo "SOURCE_DIR: ${SOURCE_DIR}"
 
   echo "Modifying config file..."
+  cp ${SOURCE_DIR}/mudletbootstrap-appdmg.json ${BUILD_DIR}
+
   # Modify appdmg config file according to the app file to package
-  perl -pi -e "s|../source/build/.*MudletBootstrap.*\\.app|${BUILD_DIR}/${app}|i" "${SOURCE_DIR}/mudletbootstrap-appdmg.json"
+  perl -pi -e "s|../source/build/.*MudletBootstrap.*\\.app|${BUILD_DIR}/${app}|i" "${BUILD_DIR}/mudletbootstrap-appdmg.json"
   # Update icons to the correct type
-  perl -pi -e "s|../source/src/icons/.*\\.icns|${SOURCE_DIR}/mudlet.icns|i" "${SOURCE_DIR}/mudletbootstrap-appdmg.json"
+  perl -pi -e "s|../source/src/icons/.*\\.icns|${BUILD_DIR}/mudlet.icns|i" "${BUILD_DIR}/mudletbootstrap-appdmg.json"
 
   echo "Listing config file:"
-  cat ${SOURCE_DIR}/mudletbootstrap-appdmg.json
+  cat ${BUILD_DIR}/mudletbootstrap-appdmg.json
 
   echo "Creating appdmg..."
   # Last: build *.dmg file
-  appdmg "${SOURCE_DIR}/mudletbootstrap-appdmg.json" "${HOME}/Desktop/$(basename "${app%.*}").dmg"
+  appdmg "${BUILD_DIR}/mudletbootstrap-appdmg.json" "${HOME}/Desktop/$(basename "${app%.*}").dmg"
 
-  #if [ -n "$MACOS_SIGNING_PASS" ]; then
-  #    sign_and_notarize "${HOME}/Desktop/${appBaseName}.dmg"
-  #fi
+  if [ -n "$MACOS_SIGNING_PASS" ]; then
+      sign_and_notarize "${HOME}/Desktop/${appBaseName}.dmg"
+  fi
 
   mv "${HOME}/Desktop/${appBaseName}.dmg" "${GITHUB_WORKSPACE}/upload/${appBaseName}-${gameName}.dmg"
 
 done < "${GITHUB_WORKSPACE}/GameList.txt"
-
-echo "=== ... later, via Github ==="
-# Move the finished file into a folder of its own, because we ask Github to upload contents of a folder
 
 {
     echo "FOLDER_TO_UPLOAD=${GITHUB_WORKSPACE}/upload"
