@@ -130,20 +130,20 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   # "luasql/sqlite3.dll" needed "libsqlite3-0.dll"!
   #
   echo ""
-  echo "Examining MudletBootstrap application to identify other needed libraries..."
+  #echo "Examining MudletBootstrap application to identify other needed libraries..."
 
-    NEEDED_LIBS=$("${MINGW_INTERNAL_BASE_DIR}/bin/ntldd" --recursive ./MudletBootstrap.exe \
-      | /usr/bin/grep -v "Qt6" \
-      | /usr/bin/grep -i "mingw" \
-      | /usr/bin/cut -d ">" -f2 \
-      | /usr/bin/cut -d "(" -f1 \
-      | /usr/bin/sort)
+  #  NEEDED_LIBS=$("${MINGW_INTERNAL_BASE_DIR}/bin/ntldd" --recursive ./MudletBootstrap.exe \
+  #    | /usr/bin/grep -v "Qt6" \
+  #    | /usr/bin/grep -i "mingw" \
+  #    | /usr/bin/cut -d ">" -f2 \
+  #    | /usr/bin/cut -d "(" -f1 \
+  #    | /usr/bin/sort)
 
-  echo ""
-  echo "Copying these identified libraries..."
-  for LIB in ${NEEDED_LIBS} ; do
-    cp -v -p "${LIB}" . ;
-  done
+  #echo ""
+  #echo "Copying these identified libraries..."
+  #for LIB in ${NEEDED_LIBS} ; do
+  #  cp -v -p "${LIB}" . ;
+  #done
 
   cd $GITHUB_WORKSPACE_UNIX_PATH || exit 1
 
