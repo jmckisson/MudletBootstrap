@@ -238,7 +238,7 @@ void MudletBootstrap::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal
     statusLabel->setText(QString("Downloading %1... %2 / %3 bytes").arg(info.appName).arg(bytesReceived).arg(bytesTotal));
 }
 
-void installAndRunDmg(const QString& dmgFilePath) {
+void installAndRunDmg(QProcessEnvironment &env, const QString& dmgFilePath) {
     QProcess process;
 
     // Step 1: Mount the .dmg file
@@ -285,6 +285,7 @@ void installAndRunDmg(const QString& dmgFilePath) {
 
     // Step 4: Run the application
     QString appExecutable = targetDir + "/Mudlet.app";
+    process.setProcessEnvironment(env);
     process.start("open", {appExecutable});
     process.waitForFinished();
     if (process.exitCode() != 0) {
@@ -299,23 +300,25 @@ void MudletBootstrap::installApplication(const QString &filePath) {
 
     QProcess installerProcess;
 
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
     // Read the profile from the .ini file
     QString launchProfile = readLaunchProfileFromResource();
     if (launchProfile.isEmpty()) {
         qDebug() << "No launch profile found. Using default.";
     } else {
         // Pass along the launch profile to the environment
-        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+        //QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
         env.insert("MUDLET_PROFILES", launchProfile);
-        installerProcess.setProcessEnvironment(env);
     }
     
 
     // Install the application
 #if defined(Q_OS_WIN)
+    installerProcess.setProcessEnvironment(env);
     installerProcess.start("cmd.exe", {"/C", outputFile});
 #elif defined(Q_OS_MAC)
-    installAndRunDmg(outputFile);
+    installAndRunDmg(env, outputFile);
 #elif defined(Q_OS_LINUX)
     installerProcess.start("chmod", {"+x", outputFile}); // Make executable
     installerProcess.waitForFinished();
