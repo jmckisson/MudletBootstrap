@@ -1,7 +1,7 @@
 {
     "title": "MudletBootstrap",
     "app": "../source/build/MudletBootstrap.app",
-    "background": "mudlet_osx_installer_background.png",
+    "background": "../mudlet_osx_installer_background.png",
     "icon": "../source/src/icons/osx.icns",
     "icons": {
       "size": 80,
