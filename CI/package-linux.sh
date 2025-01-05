@@ -72,7 +72,7 @@ echo "=== ... later, via Github ==="
 
 
 {
-  echo "FOLDER_TO_UPLOAD=${GITHUB_WORKSPACVE}/upload"
+  echo "FOLDER_TO_UPLOAD=${GITHUB_WORKSPACE}/upload"
   echo "UPLOAD_FILENAME=MudletBootstrap-linux-x64"
 } >> "$GITHUB_ENV"
 DEPLOY_URL="Github artifact, see https://github.com/$GITHUB_REPOSITORY/runs/$GITHUB_RUN_ID"
