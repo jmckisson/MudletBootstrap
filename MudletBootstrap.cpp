@@ -317,6 +317,51 @@ void installAndRunDmg(QProcessEnvironment &env, const QString& dmgFilePath) {
 }
 
 
+void installAndRunAppImage(QProcessEnvironment &env, const QString& tarFilePath) {
+    QProcess process;
+
+    // Extract the tar file
+    QString extractDir = QDir::tempPath() + "/ExtractedApp"; // Temporary directory for extraction
+    QDir().mkpath(extractDir); // Ensure the directory exists
+    process.start("tar", {"-xf", tarFilePath, "-C", extractDir});
+    process.waitForFinished();
+    if (process.exitCode() != 0) {
+        qWarning() << "Failed to extract tar file:" << process.readAllStandardError();
+        return;
+    }
+    qDebug() << "Tar file extracted to" << extractDir;
+
+    // Locate the AppImage file
+    QDir dir(extractDir);
+    QStringList appImages = dir.entryList({"*.AppImage"}, QDir::Files);
+    if (appImages.isEmpty()) {
+        qWarning() << "No AppImage file found in the extracted directory.";
+        return;
+    }
+    QString appImagePath = dir.filePath(appImages.first());
+    qDebug() << "Found AppImage:" << appImagePath;
+
+    // Make the AppImage executable
+    process.start("chmod", {"+x", appImagePath});
+    process.waitForFinished();
+    if (process.exitCode() != 0) {
+        qWarning() << "Failed to make AppImage executable:" << process.readAllStandardError();
+        return;
+    }
+    qDebug() << "AppImage is now executable.";
+
+    // Run the AppImage
+    process.setProcessEnvironment(env);
+    process.start(appImagePath);
+    process.waitForFinished();
+    if (process.exitCode() != 0) {
+        qWarning() << "Failed to run AppImage:" << process.readAllStandardError();
+        return;
+    }
+    qDebug() << "AppImage launched successfully.";
+}
+
+
 void MudletBootstrap::installApplication(const QString &filePath) {
 
     QProcess installerProcess;
@@ -337,14 +382,13 @@ void MudletBootstrap::installApplication(const QString &filePath) {
 #if defined(Q_OS_WIN)
     installerProcess.setProcessEnvironment(env);
     installerProcess.start("cmd.exe", {"/C", outputFile});
+    installerProcess.waitForFinished();
 #elif defined(Q_OS_MAC)
     installAndRunDmg(env, outputFile);
 #elif defined(Q_OS_LINUX)
-    installerProcess.start("chmod", {"+x", outputFile}); // Make executable
-    installerProcess.waitForFinished();
-    installerProcess.start("./" + outputFile);
+    installAndRunAppImage(env, outputFile);
 #endif
-    installerProcess.waitForFinished();
+    
     statusLabel->setText("Installation Completed");
     progressWindow->close();
 }
