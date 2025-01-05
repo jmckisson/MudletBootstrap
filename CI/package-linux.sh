@@ -23,45 +23,56 @@ else
   exit 2
 fi
 
-# create app directory for building the AppImage
-mkdir app
-mkdir app/lib
-cp build/MudletBootstrap app/
+mkdir "${GITHUB_WORKSPACE}/upload/"
 
-cp "$SOURCE_DIR"/mudlet{.png,.svg} app/
-cp "$SOURCE_DIR"/mudletbootstrap.desktop app/
+while IFS= read -r line || [[ -n "$line" ]]; do
+  gameName=$(echo "$line" | tr -cd '[:alnum:]_-')
 
-./linuxdeployqt.AppImage --appimage-extract
+  # create app directory for building the AppImage
+  mkdir app
+  mkdir app/lib
 
-# Bundle libssl.so so Mudlet works on platforms that only distribute
-# OpenSSL 1.1
-cp -L /usr/lib/x86_64-linux-gnu/libssl.so* \
-      app/lib/ || true
-cp -L /lib/x86_64-linux-gnu/libssl.so* \
-      app/lib/ || true
-if [ -z "$(ls app/lib/libssl.so*)" ]; then
-  echo "No OpenSSL libraries to copy found. Aborting..."
-fi
+  cp build-${gameName}/MudletBootstrap app/
 
-./squashfs-root/AppRun ./app/MudletBootstrap -appimage \
-  -executable=app/lib/libssl.so.1.1 \
-  -executable=app/lib/libssl.so.1.0.0
+  cp "$SOURCE_DIR"/mudlet{.png,.svg} app/
+  cp "$SOURCE_DIR"/mudletbootstrap.desktop app/
 
-# clean up extracted appimage
-rm -rf squashfs-root/
+  ./linuxdeployqt.AppImage --appimage-extract
 
-BUILD_COMMIT=$(git rev-parse --short HEAD)
+  # Bundle libssl.so so Mudlet works on platforms that only distribute
+  # OpenSSL 1.1
+  cp -L /usr/lib/x86_64-linux-gnu/libssl.so* \
+        app/lib/ || true
+  cp -L /lib/x86_64-linux-gnu/libssl.so* \
+        app/lib/ || true
+  if [ -z "$(ls app/lib/libssl.so*)" ]; then
+    echo "No OpenSSL libraries to copy found. Aborting..."
+  fi
 
-mv MudletBootstrap-${BUILD_COMMIT}-x86_64.AppImage MudletBootstrap.AppImage
-chmod +x "MudletBootstrap.AppImage"
-tar -cvf "MudletBootstrap-linux-x64.AppImage.tar" "MudletBootstrap.AppImage"
+  ./squashfs-root/AppRun ./app/MudletBootstrap -appimage \
+    -executable=app/lib/libssl.so.1.1 \
+    -executable=app/lib/libssl.so.1.0.0
+
+  # clean up extracted appimage
+  rm -rf squashfs-root/
+
+  BUILD_COMMIT=$(git rev-parse --short HEAD)
+
+  mv MudletBootstrap-${BUILD_COMMIT}-x86_64.AppImage MudletBootstrap.AppImage
+  chmod +x "MudletBootstrap.AppImage"
+  tar -cvf "MudletBootstrap-linux-x64.AppImage.tar" "MudletBootstrap.AppImage"
+
+  mv "MudletBootstrap-linux-x64.AppImage.tar" "${GITHUB_WORKSPACE}/upload/MudletBootstrap-linux-x64-${gameName}.AppImage.tar"
+
+  rm -rf app/
+done < "${GITHUB_WORKSPACE}/GameList.txt"
 
 echo "=== ... later, via Github ==="
 # Move the finished file into a folder of its own, because we ask Github to upload contents of a folder
-mkdir "upload/"
-mv "MudletBootstrap-linux-x64.AppImage.tar" "upload/"
+
+
 {
-  echo "FOLDER_TO_UPLOAD=$(pwd)/upload"
+  echo "FOLDER_TO_UPLOAD=${GITHUB_WORKSPACVE}/upload"
   echo "UPLOAD_FILENAME=MudletBootstrap-linux-x64"
 } >> "$GITHUB_ENV"
 DEPLOY_URL="Github artifact, see https://github.com/$GITHUB_REPOSITORY/runs/$GITHUB_RUN_ID"
