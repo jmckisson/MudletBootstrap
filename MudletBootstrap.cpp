@@ -235,8 +235,12 @@ void MudletBootstrap::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal
         int progress = static_cast<int>((bytesReceived * 100) / bytesTotal);
         progressBar->setValue(progress);
     }
-    statusLabel->setText(QString("Downloading %1... %2 / %3 bytes").arg(info.appName).arg(bytesReceived).arg(bytesTotal));
+    statusLabel->setText(QString("Downloading %1... %2 / %3 MB")
+        .arg(info.appName)
+        .arg(bytesReceived/1048576.0, 0, 'g', 2)
+        .arg(bytesTotal/1048576.0, 0, 'g', 2));
 }
+
 
 void installAndRunDmg(QProcessEnvironment &env, const QString& dmgFilePath) {
     QProcess process;
