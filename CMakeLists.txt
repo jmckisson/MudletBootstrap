@@ -12,11 +12,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(WIN32)
     set(QT_STATIC ON)
     set(BUILD_SHARED_LIBS OFF)
-    # Enable static runtime linking (GCC/MinGW)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+
     # Explicitly find static libb2
     find_library(LIBB2_STATIC NAMES b2 REQUIRED)
+    find_library(LIB_BROTLIDEC brotlidec REQUIRED)
+    find_library(LIB_ZLIB z REQUIRED)
+    find_library(LIB_ZSTD zstd REQUIRED)
+
+    # Enable static runtime linking (GCC/MinGW)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -Wl,--gc-sections")
 endif()
 
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Widgets LinguistTools Network)
@@ -47,6 +52,9 @@ target_link_libraries(MudletBootstrap PRIVATE
     Qt${QT_VERSION_MAJOR}::Network
     if(WIN32)
         ${LIBB2_STATIC}
+        ${LIB_BROTLIDEC}
+        ${LIB_ZLIB}
+        ${LIB_ZSTD}
     endif()
 )
 
