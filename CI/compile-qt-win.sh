@@ -30,3 +30,6 @@ cmake --build . --parallel
 
 echo "=== Installing Qt ==="
 cmake --install .
+
+echo "Finding windeployqt6.."
+find ${RUNNER_WORKSPACE}/qt-static-install | grep windeployqt6
