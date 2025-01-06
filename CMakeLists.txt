@@ -9,6 +9,11 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(WIN32)
+    set(QT_STATIC ON)
+    set(BUILD_SHARED_LIBS OFF)
+endif()
+
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Widgets LinguistTools Network)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets LinguistTools Network)
 
@@ -26,6 +31,12 @@ qt_add_executable(MudletBootstrap
     ${PROJECT_SOURCES}
 )
 
+if(WIN32)
+# Add static Qt resource file
+    qt_add_resources(RESOURCES resources.qrc)
+    target_sources(MudletBootstrap PRIVATE ${RESOURCES})
+endif()
+
 target_link_libraries(MudletBootstrap PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 
 qt_add_resources(RESOURCES resources.qrc)
@@ -39,6 +50,13 @@ set_target_properties(MudletBootstrap PROPERTIES
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
+
+if(WIN32)
+    # Disable plugin dependencies for static build
+    if(QT_VERSION_MAJOR EQUAL 6)
+        qt_finalize_executable(MudletBootstrap)
+    endif()
+endif()
 
 include(GNUInstallDirs)
 install(TARGETS MudletBootstrap
