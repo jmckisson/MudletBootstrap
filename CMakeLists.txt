@@ -12,6 +12,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(WIN32)
     set(QT_STATIC ON)
     set(BUILD_SHARED_LIBS OFF)
+    # Explicitly find static libb2
+    find_library(LIBB2_STATIC NAMES b2 REQUIRED)
 endif()
 
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Widgets LinguistTools Network)
@@ -37,7 +39,13 @@ if(WIN32)
     target_sources(MudletBootstrap PRIVATE ${RESOURCES})
 endif()
 
-target_link_libraries(MudletBootstrap PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(MudletBootstrap PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Network
+    if(WIN32)
+        ${LIBB2_STATIC}
+    endif()
+)
 
 qt_add_resources(RESOURCES resources.qrc)
 target_sources(MudletBootstrap PRIVATE ${RESOURCES})
