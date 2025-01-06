@@ -51,13 +51,6 @@ set_target_properties(MudletBootstrap PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-if(WIN32)
-    # Disable plugin dependencies for static build
-    if(QT_VERSION_MAJOR EQUAL 6)
-        qt_finalize_executable(MudletBootstrap)
-    endif()
-endif()
-
 include(GNUInstallDirs)
 install(TARGETS MudletBootstrap
     BUNDLE DESTINATION .
