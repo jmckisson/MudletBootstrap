@@ -69,8 +69,8 @@ echo ""
 
 cd $GITHUB_WORKSPACE_UNIX_PATH || exit 1
 
-echo "Finding windeployqt6.."
-find ${RUNNER_WORKSPACE}/qt-static-install | grep windeployqt6
+#echo "Finding windeployqt6.."
+#find ${RUNNER_WORKSPACE}/qt-static-install | grep windeployqt6
 
 while IFS= read -r line || [[ -n "$line" ]]; do
 
@@ -114,7 +114,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   fi
 
 
-  "${MINGW_INTERNAL_BASE_DIR}/bin/windeployqt6" ./MudletBootstrap.exe
+  "${RUNNER_WORKSPACE}/qt-static-install/bin/windeployqt6" ./MudletBootstrap.exe
 
   ZIP_FILE_NAME="MudletBootstrap"
 
