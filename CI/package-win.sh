@@ -69,6 +69,9 @@ echo ""
 
 cd $GITHUB_WORKSPACE_UNIX_PATH || exit 1
 
+echo "Finding windeployqt6.."
+find ${RUNNER_WORKSPACE}/qt-static-install | grep windeployqt6
+
 while IFS= read -r line || [[ -n "$line" ]]; do
 
   gameName=$(echo "$line" | tr -cd '[:alnum:]_-')
