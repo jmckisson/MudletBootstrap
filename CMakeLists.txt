@@ -17,6 +17,7 @@ if(WIN32)
     # Explicitly find static libb2
     find_library(LIBB2_STATIC libb2.a REQUIRED)
     find_library(LIB_BROTLIDEC libbrotlidec.a REQUIRED)
+    find_library(LIB_BROTLICOMMON libbrotlicommon.a REQUIRED)
     find_library(LIB_ZLIB libz.a REQUIRED)
     find_library(LIB_ZSTD libzstd.a REQUIRED)
 
@@ -51,6 +52,7 @@ if(WIN32)
     target_link_libraries(MudletBootstrap PRIVATE
         ${LIBB2_STATIC}
         ${LIB_BROTLIDEC}
+        ${LIB_BROTLICOMMON}
         ${LIB_ZLIB}
         ${LIB_ZSTD}
     )
