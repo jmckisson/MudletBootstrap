@@ -20,8 +20,8 @@ if(WIN32)
     find_library(LIB_ZSTD zstd REQUIRED)
 
     # Enable static runtime linking (GCC/MinGW)
-    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
-    #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -Wl,--gc-sections")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -Wl,--gc-sections")
 endif()
 
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Widgets LinguistTools Network)
@@ -45,18 +45,23 @@ if(WIN32)
 # Add static Qt resource file
     qt_add_resources(RESOURCES resources.qrc)
     target_sources(MudletBootstrap PRIVATE ${RESOURCES})
+    
+
 endif()
 
 target_link_libraries(MudletBootstrap PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Network
-    if(WIN32)
+)
+
+if(WIN32)
+    target_link_libraries(MudletBootstrap PRIVATE
         ${LIBB2_STATIC}
         ${LIB_BROTLIDEC}
         ${LIB_ZLIB}
         ${LIB_ZSTD}
-    endif()
-)
+    )
+endif()
 
 qt_add_resources(RESOURCES resources.qrc)
 target_sources(MudletBootstrap PRIVATE ${RESOURCES})
