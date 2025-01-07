@@ -1,5 +1,6 @@
 #include "MudletBootstrap.h"
 #include <QApplication>
+#include <QtConcurrent>
 #include <QCryptographicHash>
 #include <QDir>
 #include <QNetworkRequest>
@@ -426,6 +427,7 @@ void MudletBootstrap::onDownloadFinished() {
         statusLabel->setText(QString("Installing %1").arg(info.appName));
 
         installApplication(outputFile);
+        QtConcurrent::run(this, &MudletBootstrap::installApplication, outputFile);
 
     } else {
         qDebug() << "Failed to save file.";
