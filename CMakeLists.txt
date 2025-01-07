@@ -26,8 +26,8 @@ if(WIN32)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -Wl,--gc-sections")
 endif()
 
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Concurrent Widgets LinguistTools Network)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Concurrent Widgets LinguistTools Network)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Widgets LinguistTools Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets LinguistTools Network)
 
 set(TS_FILES MudletBootstrap_en_US.ts)
 
@@ -46,7 +46,6 @@ qt_add_executable(MudletBootstrap
 target_link_libraries(MudletBootstrap PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Network
-    Qt${QT_VERSION_MAJOR}::Concurrent
 )
 
 if(WIN32)
