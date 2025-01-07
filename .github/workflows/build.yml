@@ -93,13 +93,13 @@ jobs:
         $GITHUB_WORKSPACE/CI/setup-win-sdk.sh
         echo "QT_ROOT=${{runner.workspace}}/qt-static-install" >> $GITHUB_ENV
 
-    #- name: (Windows) Restore Qt cache
-    #  if: runner.os == 'Windows'
-    #  id: restore-qt
-    #  uses: actions/cache/restore@v4
-    #  with:
-    #    path: ${{env.QT_ROOT}}
-    #    key: qt
+    - name: (Windows) Restore Qt cache
+      if: runner.os == 'Windows'
+      id: restore-qt
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{env.QT_ROOT}}
+        key: qt
 
     - name: (Windows) Compile Qt
       if: runner.os == 'Windows' && steps.restore-qt.outputs.cache-hit != 'true'

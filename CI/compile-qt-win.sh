@@ -13,7 +13,7 @@ mkdir qt-static-build
 cd qt-static-build
 export CMAKE_SUPPRESS_DEVELOPER_WARNINGS=ON
 
-../qt6-source/configure -prefix ${RUNNER_WORKSPACE}/qt-static-install -static -static-runtime -release -opensource -no-shared -qt-zlib -qt-zstd -qt-brotli -confirm-license -init-submodules -submodules qtbase,qttranslations,qttools -nomake tests -nomake examples -skip qt3d -skip qtmultimedia -skip qtdeclarative -skip qtshadertools -skip qtquick -skip designer -no-opengl -no-dbus -platform win32-g++ -openssl-linked
+../qt6-source/configure -prefix ${RUNNER_WORKSPACE}/qt-static-install -static -static-runtime -release -opensource -no-shared -confirm-license -init-submodules -submodules qtbase,qttranslations,qttools -nomake tests -nomake examples -skip qt3d -skip qtmultimedia -skip qtdeclarative -skip qtshadertools -skip qtquick -skip designer -no-opengl -no-dbus -platform win32-g++ -openssl-linked
 
 # CMake configuration with ccache integration
 #cmake -DCMAKE_BUILD_TYPE=Release \

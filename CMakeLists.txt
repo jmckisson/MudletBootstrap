@@ -12,6 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(WIN32)
     set(QT_STATIC ON)
     set(BUILD_SHARED_LIBS OFF)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 
     # Explicitly find static libb2
     find_library(LIBB2_STATIC NAMES b2 REQUIRED)
