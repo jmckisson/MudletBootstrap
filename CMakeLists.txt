@@ -27,7 +27,7 @@ if(WIN32)
 endif()
 
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Concurrent Widgets LinguistTools Network)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets LinguistTools Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Concurrent Widgets LinguistTools Network)
 
 set(TS_FILES MudletBootstrap_en_US.ts)
 
