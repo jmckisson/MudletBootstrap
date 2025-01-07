@@ -237,8 +237,8 @@ void MudletBootstrap::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal
     }
     statusLabel->setText(QString("Downloading %1... %2 / %3 MB")
         .arg(info.appName)
-        .arg(bytesReceived/1048576.0, 0, 'g', 2)
-        .arg(bytesTotal/1048576.0, 0, 'g', 2));
+        .arg(bytesReceived/1048576.0, 0, 'f', 2)
+        .arg(bytesTotal/1048576.0, 0, 'f', 2));
 }
 
 
