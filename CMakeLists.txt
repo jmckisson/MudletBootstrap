@@ -15,10 +15,10 @@ if(WIN32)
     set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 
     # Explicitly find static libb2
-    find_library(LIBB2_STATIC NAMES b2 REQUIRED)
-    find_library(LIB_BROTLIDEC brotlidec REQUIRED)
-    find_library(LIB_ZLIB z REQUIRED)
-    find_library(LIB_ZSTD zstd REQUIRED)
+    find_library(LIBB2_STATIC libb2.a REQUIRED)
+    find_library(LIB_BROTLIDEC libbrotlidec.a REQUIRED)
+    find_library(LIB_ZLIB libz.a REQUIRED)
+    find_library(LIB_ZSTD libzstd.a REQUIRED)
 
     # Enable static runtime linking (GCC/MinGW)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
@@ -41,14 +41,6 @@ qt_add_executable(MudletBootstrap
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
 )
-
-if(WIN32)
-# Add static Qt resource file
-    qt_add_resources(RESOURCES resources.qrc)
-    target_sources(MudletBootstrap PRIVATE ${RESOURCES})
-    
-
-endif()
 
 target_link_libraries(MudletBootstrap PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
