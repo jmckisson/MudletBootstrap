@@ -64,7 +64,7 @@ target_sources(MudletBootstrap PRIVATE ${RESOURCES})
 message(STATUS
     "Project Version: ${PROJECT_VERSION}\n"
     "Project Version Major: ${PROJECT_VERSION_MAJOR}\n"
-    "Project Version Minor: ${PROJECT_VERSION_MNIOR}"
+    "Project Version Minor: ${PROJECT_VERSION_MINOR}"
 )
 
 
@@ -72,6 +72,7 @@ set_target_properties(MudletBootstrap PROPERTIES
     ${BUNDLE_ID_OPTION}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE_LONG_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     MACOSX_BUNDLE_ICON_FILE mudlet.icns
     MACOSX_BUNDLE_BUNDLE_NAME MudletBootstrap
@@ -79,7 +80,10 @@ set_target_properties(MudletBootstrap PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-file(GLOB ICON_FILE "mudlet.icns")
+if(APPLE)
+    file(GLOB ICON_FILE "mudlet.icns")
+    set_source_files_properties(${ICON_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+endif()
 
 include(GNUInstallDirs)
 install(TARGETS MudletBootstrap
