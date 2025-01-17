@@ -218,6 +218,12 @@ void MudletBootstrap::onFetchPlatformFeedFinished() {
 
     outputFile = info.appName;
 
+    QString osStr = detectOS();
+    // Mac may have an issue downloading a file into the .app directory
+    if (osStr.startsWith("mac")) {
+        outputFile = "~/Downloads/"+outputFile;
+    }
+
     // Create a request and start downloading the Mudlet installer
     QNetworkRequest request{QUrl(info.url)};
     currentReply = networkManager.get(request);
