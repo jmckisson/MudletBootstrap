@@ -82,6 +82,8 @@ set_target_properties(MudletBootstrap PROPERTIES
 
 if(APPLE)
     file(GLOB ICON_FILE "mudlet.icns")
+    message(STATUS "Using icon file: ${ICON_FILE}")
+    target_sources(MudletBootstrap PRIVATE ${ICON_FILE})
     set_source_files_properties(${ICON_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 endif()
 
