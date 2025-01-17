@@ -15,6 +15,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QMap>
+#include <QStandardPaths>
 
 QMap<QString, QString> getPlatformFeedMap(const QString &type) {
 
@@ -234,7 +235,7 @@ void MudletBootstrap::onFetchPlatformFeedFinished() {
     connect(currentReply, &QNetworkReply::finished, this, &MudletBootstrap::onDownloadFinished);
     connect(currentReply, &QNetworkReply::errorOccurred, this, &MudletBootstrap::onDownloadError);
 
-    statusLabel->setText(QString("Downloading %1...").arg(outputFile));
+    statusLabel->setText(QString("Downloading %1...").arg(info.appName));
 }
 
 
