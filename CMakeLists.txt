@@ -61,6 +61,12 @@ endif()
 qt_add_resources(RESOURCES resources.qrc)
 target_sources(MudletBootstrap PRIVATE ${RESOURCES})
 
+message(CONFIGURE_LOG
+    "Project Version: ${PROJECT_VERSION}\n"
+    "Project Version Major: ${PROJECT_VERSION_MAJOR}\n"
+    "Project Version Minor: ${PROJECT_VERSION_MNIOR}"
+)
+
 
 set_target_properties(MudletBootstrap PROPERTIES
     ${BUNDLE_ID_OPTION}
