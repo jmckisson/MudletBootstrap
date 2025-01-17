@@ -73,7 +73,7 @@ set_target_properties(MudletBootstrap PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-file(GLOB ICON_FILE "icons/mudlet.icns")
+file(GLOB ICON_FILE "mudlet.icns")
 
 include(GNUInstallDirs)
 install(TARGETS MudletBootstrap
