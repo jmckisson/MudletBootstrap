@@ -224,6 +224,8 @@ void MudletBootstrap::onFetchPlatformFeedFinished() {
         outputFile = "~/Downloads/"+outputFile;
     }
 
+    qDebug() << "OutputFile: " << outputFile;
+
     // Create a request and start downloading the Mudlet installer
     QNetworkRequest request{QUrl(info.url)};
     currentReply = networkManager.get(request);
@@ -416,6 +418,8 @@ void MudletBootstrap::onDownloadFinished() {
         statusLabel->setText(QString("Error downloading file: %1").arg(currentReply->errorString()));
         return;
     }
+
+    qDebug() << "Download finished: " << outputFile;
 
     QFile file(outputFile);
     if (file.open(QIODevice::WriteOnly)) {
