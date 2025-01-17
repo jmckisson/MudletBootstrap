@@ -221,7 +221,7 @@ void MudletBootstrap::onFetchPlatformFeedFinished() {
     QString osStr = detectOS();
     // Mac may have an issue downloading a file into the .app directory
     if (osStr.startsWith("mac")) {
-        outputFile = "~/Downloads/"+outputFile;
+        outputFile = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + outputFile;
     }
 
     qDebug() << "OutputFile: " << outputFile;
