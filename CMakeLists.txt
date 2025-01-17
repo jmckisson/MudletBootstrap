@@ -67,8 +67,13 @@ set_target_properties(MudletBootstrap PROPERTIES
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
+    MACOSX_BUNDLE_ICON_FILE mudlet.icns
+    MACOSX_BUNDLE_BUNDLE_NAME MudletBootstrap
+    MACOSX_BUNDLE_GUI_IDENTIFIER org.mudlet.bootstrap
     WIN32_EXECUTABLE TRUE
 )
+
+file(GLOB ICON_FILE "icons/mudlet.icns")
 
 include(GNUInstallDirs)
 install(TARGETS MudletBootstrap
